@@ -1,0 +1,166 @@
+/* ── Mercato Partners — Market Research Platform Design System ────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Global overrides */
+html, body, [class*="css"] {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Remove default Streamlit padding */
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    max-width: 1100px;
+}
+
+/* Sidebar styling */
+[data-testid="stSidebar"] {
+    background-color: #0A0A0A;
+}
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] label,
+[data-testid="stSidebar"] .stSelectbox label,
+[data-testid="stSidebar"] .stSlider label,
+[data-testid="stSidebar"] .stRadio label {
+    color: #ECF0F1 !important;
+}
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h1,
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2,
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3 {
+    color: #FFFFFF !important;
+}
+
+/* Card container */
+.metric-card {
+    background: #FFFFFF;
+    border: 1px solid #ECF0F1;
+    border-radius: 8px;
+    padding: 1.2rem;
+    margin-bottom: 0.8rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.metric-card h4 {
+    color: #777777;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.3rem;
+}
+
+.metric-card .value {
+    color: #0A0A0A;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+/* Section headers */
+.section-header {
+    color: #0A0A0A;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border-bottom: 2px solid #1ABC9C;
+    padding-bottom: 0.4rem;
+    margin-bottom: 1rem;
+    margin-top: 1.5rem;
+}
+
+/* Risk severity badges */
+.severity-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+}
+.severity-1, .severity-2 { background-color: #1ABC9C; }
+.severity-3 { background-color: #D4A338; }
+.severity-4 { background-color: #E67E22; }
+.severity-5 { background-color: #E74C3C; }
+
+/* Source label badges */
+.source-badge {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+.source-from-sources {
+    background-color: #1ABC9C22;
+    color: #1ABC9C;
+    border: 1px solid #1ABC9C;
+}
+.source-model-suggested {
+    background-color: #33333322;
+    color: #333333;
+    border: 1px solid #333333;
+}
+
+/* Demo mode banner */
+.demo-banner {
+    background: linear-gradient(135deg, #0A0A0A, #333333);
+    color: white;
+    padding: 0.8rem 1.2rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* Primary button override */
+.stButton > button[kind="primary"],
+.stButton > button {
+    background-color: #0A0A0A;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    padding: 0.5rem 2rem;
+    transition: background-color 0.2s;
+}
+.stButton > button:hover {
+    background-color: #333333;
+    color: white;
+}
+
+/* Tabs styling */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 0;
+}
+.stTabs [data-baseweb="tab"] {
+    font-weight: 500;
+    color: #777777;
+    padding: 0.5rem 1.5rem;
+}
+.stTabs [aria-selected="true"] {
+    color: #0A0A0A !important;
+    border-bottom-color: #1ABC9C !important;
+}
+
+/* Table styling */
+.dataframe {
+    font-size: 0.85rem !important;
+}
+.dataframe th {
+    background-color: #0A0A0A !important;
+    color: white !important;
+    font-weight: 600 !important;
+}
+
+/* Muted citation */
+.citation {
+    color: #777777;
+    font-size: 0.75rem;
+    font-style: italic;
+    margin-top: 0.5rem;
+}
+
+/* Expander styling */
+.streamlit-expanderHeader {
+    font-weight: 600;
+    color: #0A0A0A;
+}
