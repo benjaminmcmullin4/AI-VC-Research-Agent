@@ -14,7 +14,7 @@ def render_sidebar() -> dict:
         f'<div style="text-align: center; padding: 0.5rem 0 1rem 0;">'
         f'<span style="color: #FFFFFF; font-size: 1.2rem; font-weight: 700; '
         f'letter-spacing: 0.05em;">{FIRM_NAME}</span><br>'
-        f'<span style="color: #999; font-size: 0.75rem;">Market Research Platform</span>'
+        f'<span style="color: #999; font-size: 0.75rem;">Internal Research Platform</span>'
         f'</div>',
         unsafe_allow_html=True,
     )

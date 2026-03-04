@@ -72,7 +72,7 @@ def generate_pdf(memo: "MarketMemo") -> bytes:
 
     # Title page
     pdf.set_font("Helvetica", "B", 24)
-    pdf.set_text_color(10, 10, 10)  # Mercato black
+    pdf.set_text_color(10, 10, 10)  # primary black
     pdf.cell(0, 20, _sanitize_for_pdf(memo.title), ln=True, align="C")
     pdf.set_font("Helvetica", "", 12)
     pdf.set_text_color(119, 119, 119)  # muted
@@ -97,7 +97,7 @@ def generate_pdf(memo: "MarketMemo") -> bytes:
     # Footer
     pdf.set_font("Helvetica", "I", 8)
     pdf.set_text_color(119, 119, 119)
-    pdf.cell(0, 10, "Mercato Partners — Internal Use Only", ln=True, align="C")
+    pdf.cell(0, 10, "Internal Use Only — Confidential", ln=True, align="C")
 
     return pdf.output()
 
@@ -160,7 +160,7 @@ def generate_docx(memo: "MarketMemo") -> bytes:
     doc.add_paragraph()
     footer = doc.add_paragraph()
     footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = footer.add_run("Mercato Partners — Internal Use Only")
+    run = footer.add_run("Internal Use Only — Confidential")
     run.italic = True
     run.font.size = Pt(8)
     run.font.color.rgb = RGBColor(0x77, 0x77, 0x77)

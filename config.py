@@ -9,9 +9,9 @@ CACHE_DIR = PROJECT_ROOT / ".cache"
 DEMO_OUTPUT_PATH = PROJECT_ROOT / "examples" / "demo_output.json"
 
 # ── Branding ──────────────────────────────────────────────────────────
-FIRM_NAME = "Mercato Partners"
+FIRM_NAME = "Deal Team"
 APP_TITLE = "Market Research Platform"
-APP_SUBTITLE = "AI-powered market maps and thesis memos for the deal team"
+APP_SUBTITLE = "AI-powered market maps and thesis memos for internal use"
 
 # ── Design System ──────────────────────────────────────────────────────
 COLORS = {

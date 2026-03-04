@@ -55,18 +55,18 @@ def send_otp(email: str) -> bool:
 
     try:
         resend.Emails.send({
-            "from": f"Mercato Partners Research <{_get_from_email()}>",
+            "from": f"Deal Team Research <{_get_from_email()}>",
             "to": [email],
-            "subject": "Your verification code — Mercato Partners Research",
+            "subject": "Your verification code — Deal Team Research",
             "html": (
                 f"<div style='font-family: Inter, sans-serif; max-width: 400px; margin: 0 auto;'>"
-                f"<h2 style='color: #0A0A0A;'>Mercato Partners</h2>"
+                f"<h2 style='color: #0A0A0A;'>Deal Team</h2>"
                 f"<p>Your verification code is:</p>"
                 f"<p style='font-size: 32px; font-weight: 700; letter-spacing: 4px; "
                 f"color: #0A0A0A; background: #F0F4F8; padding: 16px; "
                 f"border-radius: 8px; text-align: center;'>{code}</p>"
                 f"<p style='color: #777;'>This code expires in 10 minutes.</p>"
-                f"<p style='color: #999; font-size: 12px;'>Mercato Partners — Internal Use Only</p>"
+                f"<p style='color: #999; font-size: 12px;'>Deal Team — Internal Use Only</p>"
                 f"</div>"
             ),
         })
@@ -160,7 +160,7 @@ def render_auth_gate() -> bool:
 
     # Step 1: Email input
     if "otp_hash" not in st.session_state:
-        email = st.text_input("Email address", placeholder="you@mercatopartners.com", key="auth_email_input")
+        email = st.text_input("Email address", placeholder="you@company.com", key="auth_email_input")
         if st.button("Send Verification Code", type="primary"):
             if not email or "@" not in email:
                 st.error("Please enter a valid email address.")

@@ -1,4 +1,4 @@
-"""Mercato Partners — Market Research Platform."""
+"""Deal Team — Market Research Platform."""
 
 from __future__ import annotations
 

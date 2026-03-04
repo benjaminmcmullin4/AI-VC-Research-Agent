@@ -59,6 +59,6 @@ def render_memo(memo: MarketMemo) -> None:
         st.markdown("---")
 
     st.markdown(
-        '<p class="citation">Mercato Partners — Internal Use Only</p>',
+        '<p class="citation">Internal Use Only — Confidential</p>',
         unsafe_allow_html=True,
     )
