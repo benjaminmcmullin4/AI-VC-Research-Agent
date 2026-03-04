@@ -99,7 +99,7 @@ def generate_pdf(memo: "MarketMemo") -> bytes:
     pdf.set_text_color(119, 119, 119)
     pdf.cell(0, 10, _sanitize_for_pdf("Internal Use Only — Confidential"), ln=True, align="C")
 
-    return pdf.output()
+    return bytes(pdf.output())
 
 
 # ── DOCX Export ────────────────────────────────────────────────────────
