@@ -97,7 +97,7 @@ def generate_pdf(memo: "MarketMemo") -> bytes:
     # Footer
     pdf.set_font("Helvetica", "I", 8)
     pdf.set_text_color(119, 119, 119)
-    pdf.cell(0, 10, "Internal Use Only — Confidential", ln=True, align="C")
+    pdf.cell(0, 10, _sanitize_for_pdf("Internal Use Only — Confidential"), ln=True, align="C")
 
     return pdf.output()
 
