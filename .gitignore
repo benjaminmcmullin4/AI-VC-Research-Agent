@@ -1,6 +1,6 @@
-research.db
 .env
 __pycache__/
 *.pyc
 .cache/
+*.db
 .claude/

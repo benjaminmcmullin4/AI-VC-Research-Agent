@@ -1,4 +1,4 @@
-/* ── Market Research Platform — Design System ────────────────────────── */
+/* ── Agentic Marketing — Design System ──────────────────────────────── */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -7,14 +7,13 @@ html, body, [class*="css"] {
     font-family: 'Inter', sans-serif;
 }
 
-/* Remove default Streamlit padding */
 .block-container {
     padding-top: 2rem;
     padding-bottom: 2rem;
-    max-width: 1100px;
+    max-width: 1200px;
 }
 
-/* Sidebar styling */
+/* ── Sidebar ─────────────────────────────────────────────────────────── */
 [data-testid="stSidebar"] {
     background-color: #0A0A0A;
 }
@@ -30,8 +29,29 @@ html, body, [class*="css"] {
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3 {
     color: #FFFFFF !important;
 }
+/* Sidebar radio items */
+[data-testid="stSidebar"] .stRadio > div {
+    gap: 2px;
+}
+[data-testid="stSidebar"] .stRadio > div > label {
+    color: #ccc !important;
+    font-size: 0.9rem;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.15s;
+}
+[data-testid="stSidebar"] .stRadio > div > label:hover {
+    background: rgba(255,255,255,0.05);
+    color: white !important;
+}
+[data-testid="stSidebar"] .stRadio > div > label[data-checked="true"],
+[data-testid="stSidebar"] .stRadio > div > label[aria-checked="true"] {
+    background: rgba(26,188,156,0.12);
+    color: #1ABC9C !important;
+    border-left: 3px solid #1ABC9C;
+}
 
-/* Card container */
+/* ── Metric cards ────────────────────────────────────────────────────── */
 .metric-card {
     background: #FFFFFF;
     border: 1px solid #ECF0F1;
@@ -40,7 +60,6 @@ html, body, [class*="css"] {
     margin-bottom: 0.8rem;
     box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
-
 .metric-card h4 {
     color: #777777;
     font-size: 0.75rem;
@@ -49,14 +68,13 @@ html, body, [class*="css"] {
     letter-spacing: 0.05em;
     margin-bottom: 0.3rem;
 }
-
 .metric-card .value {
     color: #0A0A0A;
     font-size: 1.5rem;
     font-weight: 700;
 }
 
-/* Section headers */
+/* ── Section headers ─────────────────────────────────────────────────── */
 .section-header {
     color: #0A0A0A;
     font-weight: 700;
@@ -67,51 +85,7 @@ html, body, [class*="css"] {
     margin-top: 1.5rem;
 }
 
-/* Risk severity badges */
-.severity-badge {
-    display: inline-block;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: white;
-}
-.severity-1, .severity-2 { background-color: #1ABC9C; }
-.severity-3 { background-color: #D4A338; }
-.severity-4 { background-color: #E67E22; }
-.severity-5 { background-color: #E74C3C; }
-
-/* Source label badges */
-.source-badge {
-    display: inline-block;
-    padding: 1px 8px;
-    border-radius: 10px;
-    font-size: 0.7rem;
-    font-weight: 500;
-}
-.source-from-sources {
-    background-color: #1ABC9C22;
-    color: #1ABC9C;
-    border: 1px solid #1ABC9C;
-}
-.source-model-suggested {
-    background-color: #33333322;
-    color: #333333;
-    border: 1px solid #333333;
-}
-
-/* Demo mode banner */
-.demo-banner {
-    background: linear-gradient(135deg, #0A0A0A, #333333);
-    color: white;
-    padding: 0.8rem 1.2rem;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-    font-size: 0.9rem;
-    text-align: center;
-}
-
-/* Primary button override */
+/* ── Buttons ─────────────────────────────────────────────────────────── */
 .stButton > button[kind="primary"],
 .stButton > button {
     background-color: #0A0A0A;
@@ -127,7 +101,7 @@ html, body, [class*="css"] {
     color: white;
 }
 
-/* Tabs styling */
+/* ── Tabs ────────────────────────────────────────────────────────────── */
 .stTabs [data-baseweb="tab-list"] {
     gap: 0;
 }
@@ -141,7 +115,7 @@ html, body, [class*="css"] {
     border-bottom-color: #1ABC9C !important;
 }
 
-/* Table styling */
+/* ── Tables ──────────────────────────────────────────────────────────── */
 .dataframe {
     font-size: 0.85rem !important;
 }
@@ -151,16 +125,40 @@ html, body, [class*="css"] {
     font-weight: 600 !important;
 }
 
-/* Muted citation */
-.citation {
-    color: #777777;
-    font-size: 0.75rem;
-    font-style: italic;
-    margin-top: 0.5rem;
+/* ── Demo mode banner ────────────────────────────────────────────────── */
+.demo-banner {
+    background: linear-gradient(135deg, #0A0A0A, #333333);
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.82rem;
+    text-align: center;
 }
 
-/* Expander styling */
+/* ── Expanders ───────────────────────────────────────────────────────── */
 .streamlit-expanderHeader {
     font-weight: 600;
     color: #0A0A0A;
+}
+
+/* ── Multiselect / select styling ────────────────────────────────────── */
+.stMultiSelect [data-baseweb="tag"] {
+    background-color: #0A0A0A;
+}
+
+/* ── Scrollbar styling ───────────────────────────────────────────────── */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #F0F4F8;
+}
+::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #999;
 }

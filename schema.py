@@ -1,187 +1,92 @@
-"""Pydantic models for all 6 pipeline steps."""
+"""Pydantic v2 models for the influencer marketing platform."""
 
 from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
 
-# ── Step 1: Market Spec ────────────────────────────────────────────────
+# ── Domain models (mock data structures) ─────────────────────────────────
 
-class MarketSpec(BaseModel):
-    """Core market definition produced by Step 1."""
-
-    market_name: str = Field(description="Short canonical name for this market")
-    definition: str = Field(description="2–3 sentence market definition")
-    ideal_customer_profile: str = Field(description="Who buys this and why")
-    value_chain: list[str] = Field(
-        description="Ordered list of value-chain stages (e.g. Data Ingestion → Processing → Output)"
-    )
-    key_workflows: list[str] = Field(
-        description="Core workflows this market automates or enables"
-    )
-    pricing_models: list[str] = Field(
-        description="Common pricing approaches (SaaS, usage-based, per-seat, etc.)"
-    )
-    regulatory_context: str = Field(
-        description="Relevant regulatory or compliance considerations"
-    )
-    assumptions: list[str] = Field(
-        description="Explicit assumptions made in this analysis"
-    )
-
-
-# ── Step 2: Taxonomy ──────────────────────────────────────────────────
-
-class Segment(BaseModel):
-    """One segment within the taxonomy."""
-
+class Influencer(BaseModel):
     name: str
-    description: str
-    example_companies: list[str] = Field(default_factory=list)
-    wedge_strategy: str = Field(
-        default="",
-        description="How a startup might enter via this segment",
-    )
+    handle: str
+    platform: str
+    niche: str
+    followers: int
+    engagement_rate: float
+    audience_fit_score: int = Field(ge=0, le=100)
+    brand_fit_score: int = Field(ge=0, le=100)
+    estimated_cost: int
+    location: str
+    status: str
+    bio: str = ""
+    past_partnerships: list[str] = Field(default_factory=list)
+    avg_likes: int = 0
+    avg_comments: int = 0
+    recommendation_blurb: str = ""
+    revenue_generated: float = 0.0
 
 
-class Taxonomy(BaseModel):
-    """Market taxonomy with segments and adjacencies."""
-
-    segments: list[Segment] = Field(min_length=2)
-    adjacent_categories: list[str] = Field(
-        description="Related markets or categories worth monitoring"
-    )
+class OutreachMessage(BaseModel):
+    sender: str  # "agent" or "influencer"
+    content: str
+    timestamp: str
+    message_type: str = "initial"  # initial, follow_up, reply, negotiation
 
 
-# ── Step 3: Company Landscape ─────────────────────────────────────────
+class OutreachThread(BaseModel):
+    influencer_handle: str
+    influencer_name: str
+    platform: str
+    status: str
+    messages: list[OutreachMessage] = Field(default_factory=list)
+    current_stage: str = "Contacted"
+    assigned_to: str = "AI Agent"
+    next_action: str = ""
+    deal_value: float | None = None
 
-class Company(BaseModel):
-    """A single company in the landscape."""
 
+class Campaign(BaseModel):
     name: str
-    one_liner: str = Field(description="What they do in ≤15 words")
-    segment: str = Field(description="Which taxonomy segment they belong to")
-    stage: str = Field(description="Funding stage: Seed, Series A, Series B, Growth, Public")
-    differentiation: str = Field(description="Key differentiator vs. peers")
-    source_label: str = Field(
-        description="'from sources' if mentioned in user-provided sources, else 'model suggested'"
-    )
-    estimated_arr_range: str = Field(
-        default="Unknown",
-        description="Estimated ARR range if available (e.g. '$5M–$15M')",
-    )
-    hq_location: str = Field(default="Unknown", description="Headquarters location")
+    brand: str
+    start_date: str
+    end_date: str
+    budget: int
+    spent: int
+    influencer_count: int
+    status: str  # "Active", "Completed", "Paused"
+    target_niche: str
+    target_platforms: list[str] = Field(default_factory=list)
 
 
-class CompanyBucket(BaseModel):
-    """A group of companies in one segment."""
-
-    segment_name: str
-    companies: list[Company]
-
-
-class CompanyLandscape(BaseModel):
-    """Full company landscape across all segments."""
-
-    buckets: list[CompanyBucket]
-    total_companies: int = Field(description="Total number of companies mapped")
-    coverage_notes: str = Field(
-        default="",
-        description="Notes on coverage gaps or uncertainty",
-    )
-
-
-# ── Step 4: TAM / SAM Sizing ─────────────────────────────────────────
-
-class MarketSizing(BaseModel):
-    """TAM/SAM heuristics with ranges and assumptions."""
-
-    tam_low_b: float = Field(description="TAM low estimate in $B")
-    tam_high_b: float = Field(description="TAM high estimate in $B")
-    sam_low_b: float = Field(description="SAM low estimate in $B")
-    sam_high_b: float = Field(description="SAM high estimate in $B")
-    methodology: str = Field(description="Top-down, bottom-up, or triangulated")
-    assumptions: list[str] = Field(description="Key sizing assumptions")
-    growth_rate_pct: float = Field(description="Expected CAGR %")
-    confidence: str = Field(
-        description="Low / Medium / High — how confident is this sizing"
-    )
-    sensitivity_factors: list[str] = Field(
-        description="Factors that could materially change the sizing"
-    )
-
-
-# ── Step 5: Investment Thesis ─────────────────────────────────────────
-
-class Risk(BaseModel):
-    """A single risk item with severity rating."""
-
-    risk: str
+class AgentEvent(BaseModel):
+    timestamp: str
+    event_type: str  # discovery, qualification, outreach, reply_detected, negotiation, content_posted, conversion, insight, alert
     description: str
-    severity: int = Field(ge=1, le=5, description="1 = low, 5 = critical")
-    mitigant: str = Field(description="How an investor/company might mitigate this")
+    detail: str = ""
+    severity: str = "info"  # info, success, warning
 
 
-class InvestmentThesis(BaseModel):
-    """Full investment thesis and risk assessment."""
+# ── Claude response models (instructor structured outputs) ───────────────
 
-    why_now: list[str] = Field(description="Why is this market timely?")
-    thesis_statement: str = Field(
-        description="1–2 sentence investment thesis"
-    )
-    entry_points: list[str] = Field(
-        description="Attractive entry strategies for a PE/growth investor"
-    )
-    winner_characteristics: list[str] = Field(
-        description="What the eventual category winner looks like"
-    )
-    risks: list[Risk] = Field(min_length=1)
-    key_unknowns: list[str] = Field(
-        description="Important questions that need further diligence"
-    )
-    diligence_plan: list[str] = Field(
-        description="Recommended diligence steps"
-    )
-    sourcing_angles: list[str] = Field(
-        description="How a deal team might source opportunities in this space"
-    )
-    value_creation_angles: list[str] = Field(
-        default_factory=list,
-        description="Post-acquisition value creation levers",
-    )
+class RecommendationBlurb(BaseModel):
+    """AI-generated recommendation for an influencer."""
+    influencer_handle: str = Field(description="The influencer's social handle")
+    reasoning: str = Field(description="2-3 sentence explanation of why this influencer is recommended")
+    confidence_score: float = Field(description="Confidence from 0.0 to 1.0")
+    key_factors: list[str] = Field(description="Top 3-4 factors driving the recommendation")
 
 
-# ── Step 6: Market Memo ───────────────────────────────────────────────
-
-class MarketMemo(BaseModel):
-    """Assembled PE-style market memo in markdown sections."""
-
-    title: str
-    date: str
-    executive_summary: str
-    market_overview: str
-    tam_sam_sizing: str
-    competitive_landscape: str
-    taxonomy_segmentation: str
-    company_profiles: str
-    investment_thesis: str
-    value_creation_angles: str
-    risks_and_mitigants: str
-    diligence_plan: str
-    sources_and_methodology: str
+class DashboardInsight(BaseModel):
+    """AI-generated executive summary insight."""
+    summary: str = Field(description="2-3 sentence executive summary of campaign performance")
+    key_metrics_commentary: str = Field(description="Brief commentary on standout metrics")
+    top_recommendation: str = Field(description="One actionable next step")
 
 
-# ── Full Research Output (wraps all steps) ─────────────────────────────
-
-class ResearchOutput(BaseModel):
-    """Complete output of a research run — all 6 steps."""
-
-    query: str
-    geography: str
-    stage_focus: str
-    market_spec: MarketSpec
-    taxonomy: Taxonomy
-    landscape: CompanyLandscape
-    sizing: MarketSizing
-    thesis: InvestmentThesis
-    memo: MarketMemo
+class OutreachDraft(BaseModel):
+    """AI-generated outreach message draft."""
+    subject: str = Field(description="Short subject line for the outreach")
+    body: str = Field(description="Personalized outreach message body, 3-5 sentences")
+    tone: str = Field(description="Tone descriptor, e.g. 'professional-friendly'")
+    personalization_notes: str = Field(description="What was personalized and why")

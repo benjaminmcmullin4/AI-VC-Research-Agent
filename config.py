@@ -1,103 +1,65 @@
-"""Configuration constants, color palette, and settings."""
+"""Configuration constants for Agentic Marketing and Company Growth."""
 
-from pathlib import Path
+APP_NAME = "Agentic Marketing and Company Growth"
+APP_SUBTITLE = "Influencer Intelligence Platform"
 
-# ── Paths ──────────────────────────────────────────────────────────────
-PROJECT_ROOT = Path(__file__).parent
-DB_PATH = PROJECT_ROOT / "research.db"
-CACHE_DIR = PROJECT_ROOT / ".cache"
-DEMO_OUTPUT_PATH = PROJECT_ROOT / "examples" / "demo_output.json"
-
-# ── Branding ──────────────────────────────────────────────────────────
-FIRM_NAME = "Deal Team"
-APP_TITLE = "Market Research Platform"
-APP_SUBTITLE = "AI-powered market maps and thesis memos for internal use"
-
-# ── Design System ──────────────────────────────────────────────────────
-COLORS = {
-    "navy": "#0A0A0A",
-    "steel_blue": "#333333",
-    "teal": "#1ABC9C",
-    "red_accent": "#E74C3C",
-    "gold_accent": "#D4A338",
-    "bg": "#FAFBFC",
-    "text": "#1A1A1A",
-    "muted": "#777777",
-    "light_gray": "#ECF0F1",
-    "white": "#FFFFFF",
-}
-
-FONT = "Inter"
-
-# Plotly color sequence for segments
-SEGMENT_COLORS = [
-    "#333333",  # dark gray
-    "#1ABC9C",  # teal
-    "#D4A338",  # gold
-    "#E74C3C",  # red
-    "#9B59B6",  # purple
-    "#2ECC71",  # green
-    "#E67E22",  # orange
-    "#0A0A0A",  # black
-]
-
-# ── LLM Settings ───────────────────────────────────────────────────────
+# ── LLM ──────────────────────────────────────────────────────────────────
 DEFAULT_MODEL = "claude-sonnet-4-20250514"
 MAX_RETRIES = 3
 
-DEPTH_PRESETS = {
-    "Quick": {
-        "label": "Quick (~3 min)",
-        "detail_level": "concise",
-        "company_count": 10,
-        "temperature": 0.4,
-    },
-    "Standard": {
-        "label": "Standard (~5 min)",
-        "detail_level": "standard",
-        "company_count": 15,
-        "temperature": 0.5,
-    },
-    "Deep": {
-        "label": "Deep (~8 min)",
-        "detail_level": "detailed",
-        "company_count": 20,
-        "temperature": 0.6,
-    },
+# ── Domain ───────────────────────────────────────────────────────────────
+PLATFORMS = ["Instagram", "TikTok", "YouTube", "Twitter"]
+
+NICHES = [
+    "Fitness", "Beauty", "Tech", "Food",
+    "Lifestyle", "Fashion", "Gaming", "Travel",
+]
+
+PIPELINE_STAGES = [
+    "Discovered", "Qualified", "Contacted", "Replied",
+    "Negotiating", "Signed", "Content Posted", "Converted",
+]
+
+STAGE_COLORS = {
+    "Discovered":     "#94A3B8",
+    "Qualified":      "#60A5FA",
+    "Contacted":      "#A78BFA",
+    "Replied":        "#34D399",
+    "Negotiating":    "#FBBF24",
+    "Signed":         "#F97316",
+    "Content Posted": "#F472B6",
+    "Converted":      "#1ABC9C",
 }
 
-STAGE_OPTIONS = ["All Stages", "Seed", "Series A", "Series B", "Growth / Late Stage"]
+PLATFORM_COLORS = {
+    "Instagram": "#E1306C",
+    "TikTok":    "#010101",
+    "YouTube":   "#FF0000",
+    "Twitter":   "#1DA1F2",
+}
 
-GEOGRAPHY_OPTIONS = [
-    "Global",
-    "North America",
-    "Europe",
-    "Asia-Pacific",
-    "Latin America",
-    "Middle East & Africa",
+# ── Sidebar navigation ──────────────────────────────────────────────────
+SIDEBAR_PAGES = [
+    ("Dashboard",       "dashboard"),
+    ("Influencer Discovery", "discovery"),
+    ("Recommendations", "recommendations"),
+    ("Outreach",        "outreach"),
+    ("Campaign Pipeline", "pipeline"),
+    ("Analytics",       "analytics"),
+    ("Agent Activity",  "activity"),
 ]
 
-# ── Pipeline Step Names ────────────────────────────────────────────────
-PIPELINE_STEPS = [
-    ("market_spec", "Analyzing market definition..."),
-    ("taxonomy", "Building taxonomy & subsegments..."),
-    ("landscape", "Mapping company landscape..."),
-    ("sizing", "Estimating TAM/SAM..."),
-    ("thesis", "Synthesizing investment thesis..."),
-    ("memo", "Assembling full memo..."),
-]
+# ── Colors / design tokens ──────────────────────────────────────────────
+COLORS = {
+    "navy":       "#0A0A0A",
+    "steel":      "#333333",
+    "teal":       "#1ABC9C",
+    "gold":       "#D4A338",
+    "red":        "#E74C3C",
+    "muted":      "#777777",
+    "light_gray": "#ECF0F1",
+    "bg":         "#FAFBFC",
+    "bg_alt":     "#F0F4F8",
+}
 
-# ── Export ──────────────────────────────────────────────────────────────
-MEMO_SECTIONS = [
-    "Executive Summary",
-    "Market Overview",
-    "TAM / SAM Sizing",
-    "Competitive Landscape",
-    "Taxonomy & Segmentation",
-    "Company Profiles",
-    "Investment Thesis",
-    "Value Creation Angles",
-    "Risks & Mitigants",
-    "Diligence Plan",
-    "Sources & Methodology",
-]
+FONT = "Inter"
