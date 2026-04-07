@@ -1,11 +1,18 @@
-/* ── Agentic Marketing — Design System ──────────────────────────────── */
+/* ── Influx — Design System ──────────────────────────────────────────── */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-/* Global overrides */
+/* ── Reset & Globals ─────────────────────────────────────────────────── */
 html, body, [class*="css"] {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
+
+/* Hide Streamlit defaults */
+footer { display: none !important; }
+.stApp > header { display: none !important; }
+#MainMenu { display: none !important; }
+[data-testid="stSidebarCollapseButton"] { display: none !important; }
+[data-testid="stDecoration"] { display: none !important; }
 
 .block-container {
     padding-top: 2rem;
@@ -15,150 +22,283 @@ html, body, [class*="css"] {
 
 /* ── Sidebar ─────────────────────────────────────────────────────────── */
 [data-testid="stSidebar"] {
-    background-color: #0A0A0A;
+    background: linear-gradient(180deg, #0F1117 0%, #161829 100%);
+    border-right: 1px solid #2A2D3E;
 }
+[data-testid="stSidebar"][aria-expanded="true"] > div:first-child {
+    width: 280px;
+}
+
+/* Sidebar text */
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] label,
 [data-testid="stSidebar"] .stSelectbox label,
 [data-testid="stSidebar"] .stSlider label,
 [data-testid="stSidebar"] .stRadio label {
-    color: #ECF0F1 !important;
+    color: #8B8D9E !important;
 }
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h1,
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2,
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3 {
-    color: #FFFFFF !important;
+    color: #E8E8ED !important;
 }
-/* Sidebar radio items */
+
+/* Sidebar nav radio */
 [data-testid="stSidebar"] .stRadio > div {
     gap: 2px;
 }
 [data-testid="stSidebar"] .stRadio > div > label {
-    color: #ccc !important;
-    font-size: 0.9rem;
-    padding: 8px 12px;
-    border-radius: 6px;
-    transition: all 0.15s;
+    color: #8B8D9E !important;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 16px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
 }
 [data-testid="stSidebar"] .stRadio > div > label:hover {
-    background: rgba(255,255,255,0.05);
-    color: white !important;
+    background: rgba(108, 92, 231, 0.08);
+    color: #E8E8ED !important;
 }
 [data-testid="stSidebar"] .stRadio > div > label[data-checked="true"],
 [data-testid="stSidebar"] .stRadio > div > label[aria-checked="true"] {
-    background: rgba(26,188,156,0.12);
-    color: #1ABC9C !important;
-    border-left: 3px solid #1ABC9C;
+    background: rgba(108, 92, 231, 0.12) !important;
+    color: #6C5CE7 !important;
+    border-left: 3px solid #6C5CE7;
+    font-weight: 600;
 }
 
-/* ── Metric cards ────────────────────────────────────────────────────── */
+/* Hide radio circles */
+[data-testid="stSidebar"] .stRadio > div > label > div:first-child {
+    display: none;
+}
+
+/* ── Metric Cards ────────────────────────────────────────────────────── */
 .metric-card {
-    background: #FFFFFF;
-    border: 1px solid #ECF0F1;
-    border-radius: 8px;
-    padding: 1.2rem;
-    margin-bottom: 0.8rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    background: #1A1D2E;
+    border: 1px solid #2A2D3E;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    transition: all 0.2s ease;
+}
+.metric-card:hover {
+    border-color: #6C5CE7;
+    box-shadow: 0 8px 24px rgba(108, 92, 231, 0.12);
+    transform: translateY(-1px);
 }
 .metric-card h4 {
-    color: #777777;
-    font-size: 0.75rem;
+    color: #8B8D9E;
+    font-size: 12px;
     font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.3rem;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
 }
 .metric-card .value {
-    color: #0A0A0A;
-    font-size: 1.5rem;
-    font-weight: 700;
+    color: #E8E8ED;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
 }
 
-/* ── Section headers ─────────────────────────────────────────────────── */
-.section-header {
-    color: #0A0A0A;
-    font-weight: 700;
-    font-size: 1.1rem;
-    border-bottom: 2px solid #1ABC9C;
-    padding-bottom: 0.4rem;
-    margin-bottom: 1rem;
-    margin-top: 1.5rem;
+/* ── Influencer Cards ────────────────────────────────────────────────── */
+.influencer-card {
+    background: #1A1D2E;
+    border: 1px solid #2A2D3E;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    transition: all 0.25s ease;
+}
+.influencer-card:hover {
+    border-color: #6C5CE7;
+    box-shadow: 0 8px 28px rgba(108, 92, 231, 0.15);
+    transform: translateY(-2px);
 }
 
 /* ── Buttons ─────────────────────────────────────────────────────────── */
 .stButton > button[kind="primary"],
 .stButton > button {
-    background-color: #0A0A0A;
+    background: linear-gradient(135deg, #6C5CE7 0%, #5A4BD1 100%);
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-weight: 600;
-    padding: 0.5rem 2rem;
-    transition: background-color 0.2s;
+    font-size: 14px;
+    padding: 0.55rem 1.8rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+    letter-spacing: 0.01em;
 }
 .stButton > button:hover {
-    background-color: #333333;
+    background: linear-gradient(135deg, #7C6EF0 0%, #6C5CE7 100%);
     color: white;
+    box-shadow: 0 4px 16px rgba(108, 92, 231, 0.4);
+    transform: translateY(-1px);
+}
+.stButton > button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+}
+
+/* ── Form Controls ───────────────────────────────────────────────────── */
+[data-baseweb="input"] {
+    background-color: #1A1D2E !important;
+    border-color: #2A2D3E !important;
+    border-radius: 8px !important;
+}
+[data-baseweb="input"]:focus-within {
+    border-color: #6C5CE7 !important;
+    box-shadow: 0 0 0 1px #6C5CE7 !important;
+}
+[data-baseweb="select"] > div {
+    background-color: #1A1D2E !important;
+    border-color: #2A2D3E !important;
+    border-radius: 8px !important;
+}
+
+/* Dropdown popover */
+[data-baseweb="popover"] > div {
+    background-color: #1A1D2E !important;
+    border: 1px solid #2A2D3E !important;
+    border-radius: 8px !important;
+}
+[data-baseweb="menu"] {
+    background-color: #1A1D2E !important;
+}
+[role="option"] {
+    color: #E8E8ED !important;
+}
+[role="option"]:hover {
+    background-color: #252836 !important;
+}
+
+/* Multiselect tags */
+.stMultiSelect [data-baseweb="tag"] {
+    background-color: #6C5CE7 !important;
+    border-radius: 6px !important;
+}
+
+/* Slider */
+[data-testid="stSlider"] [data-baseweb="slider"] [role="slider"] {
+    background-color: #6C5CE7 !important;
+}
+
+/* Text area */
+.stTextArea textarea {
+    background-color: #1A1D2E !important;
+    border-color: #2A2D3E !important;
+    color: #E8E8ED !important;
+    border-radius: 8px !important;
+}
+.stTextArea textarea:focus {
+    border-color: #6C5CE7 !important;
+    box-shadow: 0 0 0 1px #6C5CE7 !important;
 }
 
 /* ── Tabs ────────────────────────────────────────────────────────────── */
 .stTabs [data-baseweb="tab-list"] {
     gap: 0;
+    background: transparent;
+    border-bottom: 1px solid #2A2D3E;
 }
 .stTabs [data-baseweb="tab"] {
     font-weight: 500;
-    color: #777777;
-    padding: 0.5rem 1.5rem;
+    font-size: 14px;
+    color: #8B8D9E;
+    padding: 10px 20px;
+    border-radius: 0;
 }
 .stTabs [aria-selected="true"] {
-    color: #0A0A0A !important;
-    border-bottom-color: #1ABC9C !important;
+    color: #6C5CE7 !important;
+    border-bottom: 2px solid #6C5CE7 !important;
+    font-weight: 600;
+}
+.stTabs [data-baseweb="tab"]:hover {
+    color: #E8E8ED;
 }
 
 /* ── Tables ──────────────────────────────────────────────────────────── */
 .dataframe {
-    font-size: 0.85rem !important;
+    font-size: 13px !important;
 }
 .dataframe th {
-    background-color: #0A0A0A !important;
-    color: white !important;
+    background-color: #1A1D2E !important;
+    color: #8B8D9E !important;
     font-weight: 600 !important;
+    font-size: 11px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #2A2D3E !important;
+}
+.dataframe td {
+    border-bottom: 1px solid #2A2D3E !important;
+    color: #E8E8ED !important;
 }
 
-/* ── Demo mode banner ────────────────────────────────────────────────── */
+/* ── Demo Banner ─────────────────────────────────────────────────────── */
 .demo-banner {
-    background: linear-gradient(135deg, #0A0A0A, #333333);
-    color: white;
-    padding: 0.6rem 1.2rem;
+    background: #1A1D2E;
+    color: #8B8D9E;
+    padding: 10px 20px;
     border-radius: 8px;
-    margin-bottom: 1rem;
-    font-size: 0.82rem;
+    margin-bottom: 1.2rem;
+    font-size: 13px;
     text-align: center;
+    border: 1px solid #2A2D3E;
+    border-left: 3px solid #6C5CE7;
 }
 
-/* ── Expanders ───────────────────────────────────────────────────────── */
-.streamlit-expanderHeader {
-    font-weight: 600;
-    color: #0A0A0A;
+/* ── Success / Info Boxes ────────────────────────────────────────────── */
+.stSuccess, [data-testid="stNotification"] {
+    background-color: #1A1D2E !important;
+    border: 1px solid #00D68F !important;
+    border-radius: 8px !important;
+}
+.stInfo {
+    background-color: #1A1D2E !important;
+    border: 1px solid #6C5CE7 !important;
+    border-radius: 8px !important;
 }
 
-/* ── Multiselect / select styling ────────────────────────────────────── */
-.stMultiSelect [data-baseweb="tag"] {
-    background-color: #0A0A0A;
+/* ── Radio buttons (non-sidebar) ─────────────────────────────────────── */
+.stRadio > div > label {
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.15s;
+}
+.stRadio > div > label:hover {
+    background: rgba(108, 92, 231, 0.06);
 }
 
-/* ── Scrollbar styling ───────────────────────────────────────────────── */
+/* ── Scrollbar ───────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
 }
 ::-webkit-scrollbar-track {
-    background: #F0F4F8;
+    background: #0F1117;
 }
 ::-webkit-scrollbar-thumb {
-    background: #ccc;
+    background: #2A2D3E;
     border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: #999;
+    background: #5B5D6E;
+}
+
+/* ── Expanders ───────────────────────────────────────────────────────── */
+.streamlit-expanderHeader {
+    font-weight: 600;
+    color: #E8E8ED;
+    font-size: 14px;
+}
+
+/* ── Horizontal rule ─────────────────────────────────────────────────── */
+hr {
+    border-color: #2A2D3E !important;
 }
