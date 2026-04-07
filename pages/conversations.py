@@ -25,7 +25,13 @@ def render_conversations(data: dict, api_key: str | None):
     all_threads: list[OutreachThread] = list(data["conversations"]) + st.session_state.get("new_threads", [])
     onboarded = st.session_state.get("onboarded", set())
 
-    st.markdown(f'<div style="font-size:14px;color:{COLORS["text_sec"]};margin-bottom:32px">{len(all_threads)} outreach threads</div>', unsafe_allow_html=True)
+    # Status filter
+    statuses = sorted(set(t.status for t in all_threads))
+    sel_status = st.multiselect("Filter by status", statuses, default=[], key="conv_status_filter")
+    if sel_status:
+        all_threads = [t for t in all_threads if t.status in sel_status]
+
+    st.markdown(f'<div style="font-size:14px;color:{COLORS["text_sec"]};margin-bottom:24px">{len(all_threads)} AI-powered outreach threads</div>', unsafe_allow_html=True)
 
     if not all_threads:
         st.info("No conversations yet. Send outreach from the Influencers page.")

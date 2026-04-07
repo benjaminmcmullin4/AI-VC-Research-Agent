@@ -138,3 +138,52 @@ def get_top_recommended(data: dict, n: int = 10) -> list[Influencer]:
         reverse=True,
     )
     return candidates[:n]
+
+
+def compute_cycle_metrics(data: dict, target: int, niches: list[str], platforms: list[str]) -> dict:
+    """Compute cycle-specific metrics for the AI campaign."""
+    influencers: list[Influencer] = data["influencers"]
+
+    # Apply preference filters (loose — if none selected, include all)
+    if niches or platforms:
+        pool = [i for i in influencers if (not niches or i.niche in niches) and (not platforms or i.platform in platforms)]
+    else:
+        pool = list(influencers)
+
+    discovered = [i for i in pool if i.status in ("Discovered", "Qualified")]
+    in_pipeline = [i for i in pool if i.status in ("Contacted", "Replied", "Negotiating")]
+    onboarded = [i for i in pool if i.status in ("Signed", "Content Posted", "Converted")]
+    declined = sum(1 for t in data["conversations"] if t.status == "Declined")
+
+    onboarded_count = len(onboarded)
+    slots_remaining = max(0, target - onboarded_count)
+
+    return {
+        "pool_size": len(pool),
+        "discovered": len(discovered),
+        "in_pipeline": len(in_pipeline),
+        "reached_out": len(in_pipeline) + onboarded_count + declined,
+        "onboarded": onboarded_count,
+        "slots_remaining": slots_remaining,
+        "declined": declined,
+        "target": target,
+    }
+
+
+def get_active_roster(data: dict) -> pd.DataFrame:
+    """DataFrame of onboarded influencers (Signed+Content Posted+Converted) with revenue."""
+    rows = []
+    for i in data["influencers"]:
+        if i.status in ("Signed", "Content Posted", "Converted"):
+            rows.append({
+                "Name": i.name,
+                "Handle": i.handle,
+                "Platform": i.platform,
+                "Niche": i.niche,
+                "Status": i.status,
+                "Est. Cost": i.estimated_cost,
+                "Revenue": i.revenue_generated,
+                "ROI": round(i.revenue_generated / i.estimated_cost, 1) if i.estimated_cost and i.revenue_generated else 0,
+            })
+    df = pd.DataFrame(rows)
+    return df.sort_values("Revenue", ascending=False).reset_index(drop=True) if len(df) else df

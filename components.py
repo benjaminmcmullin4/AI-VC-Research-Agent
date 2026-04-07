@@ -84,6 +84,21 @@ def activity_item(ev: AgentEvent) -> str:
     """
 
 
+def progress_bar_html(current: int, target: int) -> str:
+    pct = min(100, current / target * 100) if target else 0
+    return f"""
+    <div style="margin:8px 0 24px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+            <span style="font-size:14px;font-weight:600;color:{COLORS["text"]}">{current} of {target} onboarded</span>
+            <span style="font-size:14px;font-weight:700;color:{COLORS["accent"]}">{pct:.0f}%</span>
+        </div>
+        <div style="background:{COLORS["border"]};border-radius:4px;height:8px;overflow:hidden">
+            <div style="width:{pct}%;height:100%;background:{COLORS["accent"]};border-radius:4px;transition:width 0.3s"></div>
+        </div>
+    </div>
+    """
+
+
 def chat_bubble(content: str, sender: str, name: str, timestamp: str) -> str:
     is_agent = sender == "agent"
     if is_agent:

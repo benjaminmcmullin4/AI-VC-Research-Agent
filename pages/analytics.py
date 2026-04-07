@@ -1,14 +1,13 @@
-"""Analytics — conversion funnel and revenue."""
+"""Analytics — revenue, conversion funnel, active roster."""
 
 from __future__ import annotations
 
 import plotly.express as px
-import plotly.graph_objects as go
 import streamlit as st
 
-from components import section_label
-from config import COLORS, STAGE_COLORS
-from data.mock_data import compute_revenue_by_influencer, compute_revenue_by_platform
+from components import metric_card, section_label
+from config import COLORS
+from data.mock_data import compute_revenue_by_influencer, compute_revenue_by_platform, get_active_roster
 
 
 def _light_layout(fig, height=320):
@@ -24,9 +23,36 @@ def _light_layout(fig, height=320):
 
 def render_analytics(data: dict, metrics: dict):
     st.markdown(f'<h1 style="font-size:28px;font-weight:700;margin-bottom:4px">Analytics</h1>', unsafe_allow_html=True)
-    st.markdown(f'<div style="font-size:14px;color:{COLORS["text_sec"]};margin-bottom:32px">Conversion performance and revenue</div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="font-size:14px;color:{COLORS["text_sec"]};margin-bottom:32px">Revenue, conversions, and influencer performance</div>', unsafe_allow_html=True)
 
-    # ── Conversion metrics ────────────────────────────────────────────────
+    # ── Hero metrics ─────────────────────────────────────────────────────
+    onboarded_count = metrics["signed"] + metrics["content_posted"] + metrics["converted"] - metrics["negotiating"]
+    # Simpler: count from data directly
+    onboarded_count = sum(1 for i in data["influencers"] if i.status in ("Signed", "Content Posted", "Converted"))
+    total_cost = sum(i.estimated_cost for i in data["influencers"] if i.status in ("Signed", "Content Posted", "Converted"))
+    cost_per_onboard = total_cost / onboarded_count if onboarded_count else 0
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.markdown(metric_card("Total Revenue", f"${metrics['total_revenue']:,.0f}"), unsafe_allow_html=True)
+    c2.markdown(metric_card("Outreach → Onboard", f"{(onboarded_count / metrics['contacted'] * 100):.0f}%" if metrics["contacted"] else "0%"), unsafe_allow_html=True)
+    c3.markdown(metric_card("Avg Cost / Onboard", f"${cost_per_onboard:,.0f}"), unsafe_allow_html=True)
+    c4.markdown(metric_card("Active Influencers", str(onboarded_count)), unsafe_allow_html=True)
+
+    # ── Active Roster ────────────────────────────────────────────────────
+    st.markdown(section_label("Active Influencer Roster"), unsafe_allow_html=True)
+    df_roster = get_active_roster(data)
+    if len(df_roster):
+        st.dataframe(
+            df_roster.style.format({
+                "Est. Cost": "${:,.0f}",
+                "Revenue": "${:,.0f}",
+                "ROI": "{:.1f}x",
+            }),
+            use_container_width=True,
+            height=min(350, 35 * len(df_roster) + 38),
+        )
+
+    # ── Conversion metrics ───────────────────────────────────────────────
     st.markdown(section_label("Conversion Rates"), unsafe_allow_html=True)
 
     contacted = metrics["contacted"]
@@ -43,10 +69,10 @@ def render_analytics(data: dict, metrics: dict):
 
     c1, c2, c3, c4 = st.columns(4)
     for col, label, val in [
-        (c1, "Outreach → Reply", outreach_to_reply),
-        (c2, "Reply → Deal", reply_to_deal),
-        (c3, "Deal → Content", deal_to_post),
-        (c4, "Content → Convert", post_to_convert),
+        (c1, "Outreach  -  Reply", outreach_to_reply),
+        (c2, "Reply  -  Deal", reply_to_deal),
+        (c3, "Deal  -  Content", deal_to_post),
+        (c4, "Content  -  Convert", post_to_convert),
     ]:
         col.markdown(f"""
         <div style="background:{COLORS["surface"]};border:1px solid {COLORS["border"]};
@@ -57,12 +83,7 @@ def render_analytics(data: dict, metrics: dict):
         </div>
         """, unsafe_allow_html=True)
 
-    # ── Pipeline funnel ───────────────────────────────────────────────────
-    st.markdown(section_label("Pipeline Funnel"), unsafe_allow_html=True)
-    from components import pipeline_bar
-    st.markdown(pipeline_bar(metrics["pipeline_counts"]), unsafe_allow_html=True)
-
-    # ── Revenue ───────────────────────────────────────────────────────────
+    # ── Revenue charts ───────────────────────────────────────────────────
     col_l, col_r = st.columns(2)
 
     with col_l:
@@ -82,24 +103,3 @@ def render_analytics(data: dict, metrics: dict):
             fig2.update_traces(textinfo="label+percent", textfont_size=12)
             fig2.update_layout(showlegend=False)
             st.plotly_chart(_light_layout(fig2, 280), use_container_width=True)
-
-    # ── Top performers ────────────────────────────────────────────────────
-    st.markdown(section_label("Top Performers by ROI"), unsafe_allow_html=True)
-    df_rev = compute_revenue_by_influencer(data)
-    if len(df_rev):
-        top = df_rev.sort_values("ROI", ascending=False).head(5)
-        for _, row in top.iterrows():
-            st.markdown(f"""
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;
-                border-bottom:1px solid {COLORS["border"]};font-size:14px">
-                <div>
-                    <span style="font-weight:600;color:{COLORS["text"]}">{row['Name']}</span>
-                    <span style="color:{COLORS["text_muted"]};margin-left:8px">{row['Handle']}</span>
-                </div>
-                <div style="display:flex;gap:24px;color:{COLORS["text_sec"]}">
-                    <span>Cost: ${row['Cost']:,.0f}</span>
-                    <span>Revenue: <strong style="color:{COLORS["text"]}">${row['Revenue']:,.0f}</strong></span>
-                    <span style="font-weight:700;color:{COLORS["accent"]}">{row['ROI']}x</span>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)

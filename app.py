@@ -1,4 +1,4 @@
-"""Influx — Influencer Intelligence Platform."""
+"""Influx — AI-Powered Influencer Acquisition."""
 
 from __future__ import annotations
 
@@ -18,6 +18,14 @@ st.set_page_config(
 # ── Load CSS ─────────────────────────────────────────────────────────────
 with open("styles/custom.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+# ── Session state defaults ───────────────────────────────────────────────
+if "campaign_configured" not in st.session_state:
+    st.session_state["campaign_configured"] = False
+    st.session_state["campaign_name"] = ""
+    st.session_state["campaign_target"] = 10
+    st.session_state["campaign_niches"] = []
+    st.session_state["campaign_platforms"] = []
 
 # ── Load data ────────────────────────────────────────────────────────────
 data = load_all_data()
@@ -44,7 +52,6 @@ with st.sidebar:
     )
     selected_page = page_keys[page_labels.index(selected_label)]
 
-    st.markdown("<div style='flex:1'></div>", unsafe_allow_html=True)
     st.markdown(f"<hr style='border-color:rgba(255,255,255,0.08);margin:24px 0 12px'>", unsafe_allow_html=True)
 
     if api_key:
@@ -63,9 +70,9 @@ with st.sidebar:
         """, unsafe_allow_html=True)
 
 # ── Page routing ─────────────────────────────────────────────────────────
-if selected_page == "dashboard":
-    from pages.dashboard import render_dashboard
-    render_dashboard(data, metrics)
+if selected_page == "campaign":
+    from pages.dashboard import render_campaign
+    render_campaign(data, metrics, api_key)
 
 elif selected_page == "influencers":
     from pages.influencers import render_influencers

@@ -1,7 +1,7 @@
 """Configuration for Influx."""
 
 APP_NAME = "Influx"
-APP_SUBTITLE = "Influencer Intelligence"
+APP_SUBTITLE = "AI-Powered Influencer Acquisition"
 
 # ── LLM ──────────────────────────────────────────────────────────────────
 DEFAULT_MODEL = "claude-sonnet-4-20250514"
@@ -36,7 +36,7 @@ PLATFORM_COLORS = {
 
 # ── Pages ────────────────────────────────────────────────────────────────
 SIDEBAR_PAGES = [
-    ("Dashboard",      "dashboard"),
+    ("Campaign",       "campaign"),
     ("Influencers",    "influencers"),
     ("Conversations",  "conversations"),
     ("Analytics",      "analytics"),
