@@ -1,4 +1,4 @@
-"""Configuration constants for Influx — Influencer Intelligence."""
+"""Configuration for Influx."""
 
 APP_NAME = "Influx"
 APP_SUBTITLE = "Influencer Intelligence"
@@ -9,11 +9,7 @@ MAX_RETRIES = 3
 
 # ── Domain ───────────────────────────────────────────────────────────────
 PLATFORMS = ["Instagram", "TikTok", "YouTube", "Twitter"]
-
-NICHES = [
-    "Fitness", "Beauty", "Tech", "Food",
-    "Lifestyle", "Fashion", "Gaming", "Travel",
-]
+NICHES = ["Fitness", "Beauty", "Tech", "Food", "Lifestyle", "Fashion", "Gaming", "Travel"]
 
 PIPELINE_STAGES = [
     "Discovered", "Qualified", "Contacted", "Replied",
@@ -21,44 +17,42 @@ PIPELINE_STAGES = [
 ]
 
 STAGE_COLORS = {
-    "Discovered":     "#8B8D9E",
-    "Qualified":      "#60A5FA",
-    "Contacted":      "#A78BFA",
-    "Replied":        "#00D68F",
-    "Negotiating":    "#FFB800",
-    "Signed":         "#6C5CE7",
-    "Content Posted": "#F472B6",
-    "Converted":      "#00CFD5",
+    "Discovered":     "#94A3B8",
+    "Qualified":      "#6366F1",
+    "Contacted":      "#8B5CF6",
+    "Replied":        "#10B981",
+    "Negotiating":    "#F59E0B",
+    "Signed":         "#4F46E5",
+    "Content Posted": "#EC4899",
+    "Converted":      "#06B6D4",
 }
 
 PLATFORM_COLORS = {
     "Instagram": "#E1306C",
-    "TikTok":    "#E8E8ED",
-    "YouTube":   "#FF4757",
-    "Twitter":   "#1DA1F2",
+    "TikTok":    "#475569",
+    "YouTube":   "#EF4444",
+    "Twitter":   "#3B82F6",
 }
 
-# ── Sidebar navigation ──────────────────────────────────────────────────
+# ── Pages ────────────────────────────────────────────────────────────────
 SIDEBAR_PAGES = [
-    ("Dashboard",          "dashboard"),
-    ("Find & Reach Out",   "find"),
-    ("Outreach & Pipeline", "outreach_pipeline"),
+    ("Dashboard",      "dashboard"),
+    ("Influencers",    "influencers"),
+    ("Conversations",  "conversations"),
+    ("Analytics",      "analytics"),
 ]
 
-# ── Colors / design tokens ──────────────────────────────────────────────
+# ── Design tokens ────────────────────────────────────────────────────────
 COLORS = {
-    "bg":             "#0F1117",
-    "surface":        "#1A1D2E",
-    "surface_hover":  "#252836",
-    "border":         "#2A2D3E",
-    "primary":        "#6C5CE7",
-    "secondary":      "#00CFD5",
-    "text":           "#E8E8ED",
-    "text_secondary": "#8B8D9E",
-    "text_muted":     "#5B5D6E",
-    "success":        "#00D68F",
-    "warning":        "#FFB800",
-    "error":          "#FF4757",
+    "bg":         "#FFFFFF",
+    "surface":    "#F8FAFC",
+    "border":     "#E2E8F0",
+    "text":       "#0F172A",
+    "text_sec":   "#475569",
+    "text_muted": "#94A3B8",
+    "accent":     "#4F46E5",
+    "success":    "#10B981",
+    "warning":    "#F59E0B",
+    "error":      "#EF4444",
+    "sidebar_bg": "#0F172A",
 }
-
-FONT = "Inter"
