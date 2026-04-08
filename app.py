@@ -26,9 +26,15 @@ if "campaign_configured" not in st.session_state:
     st.session_state["campaign_target"] = 10
     st.session_state["campaign_niches"] = []
     st.session_state["campaign_platforms"] = []
+    st.session_state["campaign_budget"] = 50_000
 
-# ── Load data ────────────────────────────────────────────────────────────
-data = load_all_data()
+# ── Load data (simulation or static) ────────────────────────────────────
+sim = st.session_state.get("sim")
+if sim and sim.get("active"):
+    from simulation.engine import get_simulation_data
+    data = get_simulation_data(sim)
+else:
+    data = load_all_data()
 metrics = compute_dashboard_metrics(data)
 api_key = get_api_key()
 
@@ -54,6 +60,39 @@ with st.sidebar:
 
     st.markdown(f"<hr style='border-color:rgba(255,255,255,0.08);margin:24px 0 12px'>", unsafe_allow_html=True)
 
+    # ── Simulation controls in sidebar ───────────────────────────────
+    if sim and sim.get("active"):
+        from simulation.engine import advance_day, advance_days
+        from simulation.budget_tracker import budget_summary
+
+        day = sim["day"]
+        budget_info = budget_summary(sim)
+
+        st.markdown(f"""
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;
+            color:{COLORS["text_muted"]};margin-bottom:8px">Simulation</div>
+        <div style="font-size:24px;font-weight:800;color:#F1F5F9;margin-bottom:4px">Day {day}</div>
+        <div style="font-size:12px;color:{COLORS["text_muted"]};margin-bottom:16px">
+            Budget: ${budget_info['remaining']:,.0f} remaining
+        </div>
+        """, unsafe_allow_html=True)
+
+        col_a, col_b = st.columns(2)
+        with col_a:
+            if st.button("Next Day", key="sim_next_1", use_container_width=True):
+                advance_day(sim)
+                st.rerun()
+        with col_b:
+            if st.button("+7 Days", key="sim_next_7", use_container_width=True):
+                advance_days(sim, 7)
+                st.rerun()
+        if st.button("+30 Days", key="sim_next_30", use_container_width=True):
+            advance_days(sim, 30)
+            st.rerun()
+
+        st.markdown(f"<hr style='border-color:rgba(255,255,255,0.08);margin:16px 0 12px'>", unsafe_allow_html=True)
+
+    # ── API status ───────────────────────────────────────────────────
     if api_key:
         st.markdown(f"""
         <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:{COLORS["success"]};padding:8px 0">

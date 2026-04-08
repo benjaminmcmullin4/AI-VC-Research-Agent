@@ -22,8 +22,12 @@ def _status_dot(status: str) -> str:
 def render_conversations(data: dict, api_key: str | None):
     st.markdown(f'<h1 style="font-size:28px;font-weight:700;margin-bottom:4px">Conversations</h1>', unsafe_allow_html=True)
 
-    all_threads: list[OutreachThread] = list(data["conversations"]) + st.session_state.get("new_threads", [])
-    onboarded = st.session_state.get("onboarded", set())
+    all_threads: list[OutreachThread] = list(data["conversations"])
+
+    if not all_threads:
+        st.markdown(f'<div style="font-size:14px;color:{COLORS["text_sec"]};margin-bottom:24px">No conversations yet</div>', unsafe_allow_html=True)
+        st.info("No conversations yet. Advance the simulation from the sidebar to generate outreach.")
+        return
 
     # Status filter
     statuses = sorted(set(t.status for t in all_threads))
@@ -34,7 +38,7 @@ def render_conversations(data: dict, api_key: str | None):
     st.markdown(f'<div style="font-size:14px;color:{COLORS["text_sec"]};margin-bottom:24px">{len(all_threads)} AI-powered outreach threads</div>', unsafe_allow_html=True)
 
     if not all_threads:
-        st.info("No conversations yet. Send outreach from the Influencers page.")
+        st.info("No conversations match the selected filters.")
         return
 
     col_list, col_detail = st.columns([1, 2])
@@ -45,7 +49,6 @@ def render_conversations(data: dict, api_key: str | None):
 
     with col_detail:
         thread = all_threads[selected_idx]
-        is_onboarded = thread.influencer_handle in onboarded
 
         # Header
         st.markdown(f"""
@@ -54,7 +57,7 @@ def render_conversations(data: dict, api_key: str | None):
                 <span style="font-weight:400;color:{COLORS["text_muted"]};font-size:14px;margin-left:8px">{thread.influencer_handle}</span>
             </div>
             <div style="font-size:13px;color:{COLORS["text_sec"]};margin-top:4px">
-                {thread.platform} · {_status_dot(thread.status)}{thread.status if not is_onboarded else "Signed"}
+                {thread.platform} · {_status_dot(thread.status)}{thread.status}
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -66,29 +69,21 @@ def render_conversations(data: dict, api_key: str | None):
 
         # Metadata
         deal_str = f"${thread.deal_value:,.0f}" if thread.deal_value else "TBD"
+        next_action = thread.next_action or _infer_next_action(thread.status)
         st.markdown(f"""
         <div style="background:{COLORS["surface"]};border:1px solid {COLORS["border"]};
             border-radius:8px;padding:16px;margin-top:20px;font-size:13px;color:{COLORS["text_sec"]}">
-            <div style="display:flex;gap:24px">
+            <div style="display:flex;gap:24px;flex-wrap:wrap">
                 <span>Stage: <strong style="color:{COLORS["text"]}">{thread.current_stage}</strong></span>
                 <span>Deal: <strong style="color:{COLORS["text"]}">{deal_str}</strong></span>
-                <span>Next: <strong style="color:{COLORS["text"]}">{thread.next_action}</strong></span>
+                <span>Next: <strong style="color:{COLORS["text"]}">{next_action}</strong></span>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
-        # Actions
-        st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
-
-        if is_onboarded:
-            st.markdown(f'<div style="font-size:14px;font-weight:600;color:{COLORS["success"]}">Onboarded</div>', unsafe_allow_html=True)
-        elif thread.status in ("Interested", "Signed"):
-            if st.button("Onboard Influencer", key=f"onboard_{selected_idx}"):
-                st.session_state.setdefault("onboarded", set()).add(thread.influencer_handle)
-                st.success(f"{thread.influencer_name} onboarded.")
-                st.rerun()
-
+        # AI draft button
         if api_key:
+            st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
             if st.button("Draft AI Reply", key=f"ai_{selected_idx}"):
                 from ai_engine import generate_outreach_draft
                 draft = generate_outreach_draft(api_key, {"name": thread.influencer_name, "handle": thread.influencer_handle, "platform": thread.platform})
@@ -104,3 +99,17 @@ def render_conversations(data: dict, api_key: str | None):
                 <div style="font-size:14px;color:{COLORS["text"]};line-height:1.55">{d.body}</div>
             </div>
             """, unsafe_allow_html=True)
+
+
+def _infer_next_action(status: str) -> str:
+    """Infer next action from conversation status."""
+    actions = {
+        "Awaiting Reply": "Waiting for influencer response",
+        "Follow-up Sent": "Waiting for response to follow-up",
+        "Interested": "Move to negotiation",
+        "Questions": "Address influencer questions",
+        "Negotiating": "Finalize deal terms",
+        "Signed": "Content production in progress",
+        "Declined": "Closed — no further action",
+    }
+    return actions.get(status, "Review")

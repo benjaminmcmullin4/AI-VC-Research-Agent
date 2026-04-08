@@ -25,6 +25,11 @@ class Influencer(BaseModel):
     avg_comments: int = 0
     recommendation_blurb: str = ""
     revenue_generated: float = 0.0
+    # Simulation fields
+    stage_entered_day: int = 0
+    deal_value: float = 0.0
+    content_posted_day: int | None = None
+    discovered_day: int | None = None
 
 
 class OutreachMessage(BaseModel):

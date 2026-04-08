@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timedelta
+
 from config import COLORS, PIPELINE_STAGES, PLATFORM_COLORS, STAGE_COLORS
 from schema import AgentEvent, Influencer
 
@@ -61,15 +63,17 @@ def pipeline_bar(counts: dict) -> str:
     """
 
 
-def activity_item(ev: AgentEvent) -> str:
+def activity_item(ev: AgentEvent, sim_start_date: str | None = None) -> str:
     color = (
         COLORS["success"] if ev.severity == "success"
         else (COLORS["warning"] if ev.severity == "warning" else COLORS["text_muted"])
     )
     ts = ev.timestamp[:10]
-    if ts == "2026-04-06":
+    today = datetime.now().strftime("%Y-%m-%d")
+    yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+    if ts == today:
         rel = "Today"
-    elif ts == "2026-04-05":
+    elif ts == yesterday:
         rel = "Yesterday"
     else:
         rel = ts[5:]
@@ -80,6 +84,50 @@ def activity_item(ev: AgentEvent) -> str:
             <div style="font-size:14px;color:{COLORS["text"]};line-height:1.45">{ev.description}</div>
         </div>
         <div style="font-size:13px;color:{COLORS["text_muted"]};white-space:nowrap">{rel}</div>
+    </div>
+    """
+
+
+def budget_bar(total: float, spent: float, committed: float) -> str:
+    """Horizontal stacked bar showing budget allocation."""
+    remaining = max(0, total - spent - committed)
+    pct_spent = spent / total * 100 if total else 0
+    pct_committed = committed / total * 100 if total else 0
+    pct_remaining = remaining / total * 100 if total else 0
+    return f"""
+    <div style="margin:8px 0 16px">
+        <div style="display:flex;gap:2px;border-radius:4px;overflow:hidden;height:10px">
+            <div style="flex:{pct_spent};background:{COLORS["accent"]};height:100%" title="Spent: ${spent:,.0f}"></div>
+            <div style="flex:{pct_committed};background:{COLORS["warning"]};height:100%" title="Committed: ${committed:,.0f}"></div>
+            <div style="flex:{pct_remaining};background:{COLORS["border"]};height:100%" title="Remaining: ${remaining:,.0f}"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:12px;color:{COLORS["text_muted"]}">
+            <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:{COLORS["accent"]};margin-right:4px"></span>Spent ${spent:,.0f}</span>
+            <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:{COLORS["warning"]};margin-right:4px"></span>Committed ${committed:,.0f}</span>
+            <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:{COLORS["border"]};margin-right:4px"></span>Remaining ${remaining:,.0f}</span>
+        </div>
+    </div>
+    """
+
+
+def day_counter_html(day: int, start_date: str) -> str:
+    """Styled day counter with calendar date."""
+    base = datetime.strptime(start_date, "%Y-%m-%d")
+    calendar_date = (base + timedelta(days=day)).strftime("%b %d, %Y")
+    return f"""
+    <div style="background:{COLORS["surface"]};border:1px solid {COLORS["border"]};
+        border-radius:10px;padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:16px">
+        <div>
+            <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;
+                color:{COLORS["text_muted"]}">Simulation Day</div>
+            <div style="font-size:28px;font-weight:800;color:{COLORS["accent"]};letter-spacing:-0.02em">{day}</div>
+        </div>
+        <div style="width:1px;height:36px;background:{COLORS["border"]}"></div>
+        <div>
+            <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;
+                color:{COLORS["text_muted"]}">Calendar Date</div>
+            <div style="font-size:16px;font-weight:600;color:{COLORS["text"]}">{calendar_date}</div>
+        </div>
     </div>
     """
 

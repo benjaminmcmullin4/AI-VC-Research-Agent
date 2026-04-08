@@ -42,6 +42,34 @@ SIDEBAR_PAGES = [
     ("Analytics",      "analytics"),
 ]
 
+# ── Simulation ───────────────────────────────────────────────────────────
+POOL_SIZE = 750
+DEFAULT_BUDGET = 50_000
+
+TRANSITION_PROBABILITIES = {
+    "Discovered->Qualified": 0.60,
+    "Qualified->Contacted": 1.00,
+    "Contacted->Replied": 0.50,
+    "Replied->Negotiating": 0.80,
+    "Replied->Declined": 0.20,
+    "Negotiating->Signed": 0.75,
+    "Negotiating->Declined": 0.25,
+    "Signed->Content Posted": 0.95,
+    "Content Posted->Converted": 0.85,
+}
+
+TRANSITION_DELAYS = {
+    "Discovered": (1, 2),       # days before qualification check
+    "Qualified": (0, 1),        # days before auto-outreach
+    "Contacted": (2, 7),        # days waiting for reply
+    "Replied": (1, 3),          # days before negotiation starts
+    "Negotiating": (3, 7),      # days to close or decline
+    "Signed": (7, 14),          # days to produce content
+    "Content Posted": (7, 21),  # days for revenue to fully attribute
+}
+
+DISCOVERY_RATE = (5, 15)  # influencers discovered per day (min, max)
+
 # ── Design tokens ────────────────────────────────────────────────────────
 COLORS = {
     "bg":         "#FFFFFF",

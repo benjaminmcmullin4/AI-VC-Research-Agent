@@ -20,7 +20,7 @@ _QUEUE_STATUSES = {"Discovered", "Qualified"}
 def _influencer_table(influencers: list[Influencer], show_revenue: bool = False):
     """Render a filterable table of influencers."""
     if not influencers:
-        st.info("No influencers in this group.")
+        st.info("No influencers in this group yet. Advance the simulation to discover more.")
         return None
 
     rows = []
@@ -36,15 +36,17 @@ def _influencer_table(influencers: list[Influencer], show_revenue: bool = False)
             "Status": i.status,
         }
         if show_revenue:
+            row["Deal Cost"] = i.deal_value if i.deal_value else i.estimated_cost
             row["Revenue"] = i.revenue_generated
-            row["Est. Cost"] = i.estimated_cost
+            row["ROI"] = round(i.revenue_generated / max(i.deal_value, i.estimated_cost, 1), 1) if i.revenue_generated else 0
         rows.append(row)
 
     df = pd.DataFrame(rows)
     fmt = {"Followers": "{:,.0f}", "Eng. %": "{:.1f}%"}
     if show_revenue:
+        fmt["Deal Cost"] = "${:,.0f}"
         fmt["Revenue"] = "${:,.0f}"
-        fmt["Est. Cost"] = "${:,.0f}"
+        fmt["ROI"] = "{:.1f}x"
 
     st.dataframe(
         df.style.format(fmt),
@@ -54,7 +56,7 @@ def _influencer_table(influencers: list[Influencer], show_revenue: bool = False)
     return influencers
 
 
-def _influencer_detail(filtered: list[Influencer], tab_key: str, api_key: str | None, show_outreach: bool = False):
+def _influencer_detail(filtered: list[Influencer], tab_key: str, api_key: str | None):
     """Render detail panel for selected influencer."""
     if not filtered:
         return
@@ -96,63 +98,47 @@ def _influencer_detail(filtered: list[Influencer], tab_key: str, api_key: str | 
     sc3.metric("Audience Fit", f"{inf.audience_fit_score}/100")
     sc4.metric("Est. Cost", f"${inf.estimated_cost:,}")
 
-    # Outreach for queue influencers
-    if show_outreach and inf.status in ("Discovered", "Qualified"):
-        st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
-        with st.expander("Send outreach message"):
-            default_msg = (
-                f"Hi {inf.name.split()[0]}! We've been following your {inf.niche.lower()} content on "
-                f"{inf.platform} and love what you're building. We're working on a campaign that "
-                f"could be a great fit for your audience. Would you be open to a quick chat?"
-            )
-
-            if api_key:
-                if st.button("Generate with AI", key=f"inf_ai_draft_{tab_key}"):
-                    from ai_engine import generate_outreach_draft
-                    draft = generate_outreach_draft(api_key, inf.model_dump())
-                    if draft:
-                        st.session_state["inf_draft"] = draft.body
-
-            msg = st.text_area("Message", value=st.session_state.get("inf_draft", default_msg), height=120, key=f"inf_msg_{tab_key}")
-
-            if st.button("Send", key=f"inf_send_{tab_key}"):
-                now = datetime.now().strftime("%Y-%m-%d %H:%M")
-                thread = OutreachThread(
-                    influencer_handle=inf.handle, influencer_name=inf.name,
-                    platform=inf.platform, status="Awaiting Reply",
-                    messages=[OutreachMessage(sender="agent", content=msg, timestamp=now, message_type="initial")],
-                    current_stage="Contacted", assigned_to="AI Agent", next_action="Wait for reply",
-                )
-                st.session_state.setdefault("new_threads", []).append(thread)
-                st.session_state.pop("inf_draft", None)
-                st.success(f"Message sent to {inf.handle}. View it in Conversations.")
+    # Show deal value and revenue for onboarded influencers
+    if inf.status in _ONBOARDED_STATUSES and (inf.deal_value or inf.revenue_generated):
+        dc1, dc2 = st.columns(2)
+        if inf.deal_value:
+            dc1.metric("Deal Value", f"${inf.deal_value:,.0f}")
+        if inf.revenue_generated:
+            dc2.metric("Revenue Generated", f"${inf.revenue_generated:,.0f}")
 
 
 def render_influencers(data: dict, api_key: str | None):
     all_inf: list[Influencer] = data["influencers"]
+    sim = st.session_state.get("sim")
+    is_sim = sim and sim.get("active")
 
     st.markdown(f'<h1 style="font-size:28px;font-weight:700;margin-bottom:4px">AI-Found Talent</h1>', unsafe_allow_html=True)
     st.markdown(f'<div style="font-size:14px;color:{COLORS["text_sec"]};margin-bottom:24px">Matched by the AI based on your campaign criteria</div>', unsafe_allow_html=True)
 
-    tab_pipeline, tab_onboarded, tab_queue = st.tabs(["In Pipeline", "Onboarded", "Queue"])
+    pipeline = [i for i in all_inf if i.status in _PIPELINE_STATUSES]
+    onboarded = [i for i in all_inf if i.status in _ONBOARDED_STATUSES]
+    queue = [i for i in all_inf if i.status in _QUEUE_STATUSES]
+
+    tab_pipeline, tab_onboarded, tab_queue = st.tabs([
+        f"In Pipeline ({len(pipeline)})",
+        f"Onboarded ({len(onboarded)})",
+        f"Queue ({len(queue)})",
+    ])
 
     with tab_pipeline:
-        pipeline = [i for i in all_inf if i.status in _PIPELINE_STATUSES]
         st.markdown(f'<div style="font-size:13px;color:{COLORS["text_muted"]};margin:4px 0 12px">{len(pipeline)} influencers in active outreach</div>', unsafe_allow_html=True)
         result = _influencer_table(pipeline)
         if result:
             _influencer_detail(pipeline, "pipeline", api_key)
 
     with tab_onboarded:
-        onboarded = [i for i in all_inf if i.status in _ONBOARDED_STATUSES]
         st.markdown(f'<div style="font-size:13px;color:{COLORS["text_muted"]};margin:4px 0 12px">{len(onboarded)} influencers onboarded</div>', unsafe_allow_html=True)
         result = _influencer_table(onboarded, show_revenue=True)
         if result:
             _influencer_detail(onboarded, "onboarded", api_key)
 
     with tab_queue:
-        queue = [i for i in all_inf if i.status in _QUEUE_STATUSES]
         st.markdown(f'<div style="font-size:13px;color:{COLORS["text_muted"]};margin:4px 0 12px">{len(queue)} creators queued for next outreach wave</div>', unsafe_allow_html=True)
         result = _influencer_table(queue)
         if result:
-            _influencer_detail(queue, "queue", api_key, show_outreach=True)
+            _influencer_detail(queue, "queue", api_key)
