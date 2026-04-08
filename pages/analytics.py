@@ -55,7 +55,9 @@ def render_analytics(data: dict, metrics: dict):
     if is_sim and sim.get("revenue_by_day"):
         st.markdown(section_label("Revenue Over Time"), unsafe_allow_html=True)
         rev_data = sim["revenue_by_day"]
-        # Build cumulative revenue series
+        current_day = sim.get("day", len(rev_data))
+
+        # Build cumulative revenue series from actual data
         days = [d for d, _ in rev_data]
         daily_rev = [r for _, r in rev_data]
         cumulative = []
@@ -64,14 +66,56 @@ def render_analytics(data: dict, metrics: dict):
             running += r
             cumulative.append(round(running, 2))
 
+        # Project revenue forward to day 180 using posted influencers' decay curves
+        from simulation.budget_tracker import calculate_daily_revenue
+        posted_influencers = []
+        pipeline = sim.get("pipeline", {})
+        for handle, info in pipeline.items():
+            if info["stage"] in ("Content Posted", "Converted"):
+                # Find content_posted_day from pool
+                posted_day = None
+                for inf in sim.get("pool", []):
+                    if inf["handle"] == handle:
+                        posted_day = inf.get("content_posted_day")
+                        break
+                if posted_day is not None:
+                    posted_influencers.append({
+                        "deal_value": info["deal_value"],
+                        "roi_multiplier": info.get("roi_multiplier", 5.0),
+                        "content_posted_day": posted_day,
+                    })
+
+        proj_days = []
+        proj_cumulative = []
+        proj_running = running  # start from last actual value
+        for future_day in range(current_day + 1, 181):
+            day_rev = 0.0
+            for pi in posted_influencers:
+                days_since = future_day - pi["content_posted_day"]
+                day_rev += calculate_daily_revenue(
+                    pi["deal_value"], days_since, pi["roi_multiplier"]
+                )
+            proj_running += day_rev
+            proj_days.append(future_day)
+            proj_cumulative.append(round(proj_running, 2))
+
         fig_rev = go.Figure()
         fig_rev.add_trace(go.Scatter(
             x=days, y=cumulative, mode="lines+markers",
             fill="tozeroy",
             line=dict(color=COLORS["accent"], width=2),
             marker=dict(size=4),
-            name="Cumulative Revenue",
+            name="Actual Revenue",
         ))
+        if proj_days:
+            # Connect projection to actual data
+            bridge_days = [days[-1]] + proj_days
+            bridge_cumulative = [cumulative[-1]] + proj_cumulative
+            fig_rev.add_trace(go.Scatter(
+                x=bridge_days, y=bridge_cumulative, mode="lines",
+                line=dict(color=COLORS["accent"], width=2, dash="dot"),
+                name="Projected Revenue",
+            ))
         fig_rev.update_layout(
             xaxis_title="Day", yaxis_title="Revenue ($)",
             yaxis=dict(tickprefix="$", tickformat=","),

@@ -101,6 +101,30 @@ QUESTION_REPLIES = [
     "Hey! Sounds promising. What's the usage rights situation? I need to know how the content will be repurposed.",
 ]
 
+AGENT_PROPOSAL_TEMPLATES = [
+    "Thanks for your interest, {first_name}! We'd love to move forward. For {campaign_name}, we're looking at a sponsored {content_type} package. Let me put together the details for you.",
+    "Great to hear, {first_name}! Let me share what we have in mind. For this campaign, we'd like a main {content_type} piece plus story coverage. Happy to discuss the specifics and make sure it works for both of us.",
+    "Awesome, {first_name}! Really glad you're interested. Here's what we're thinking — a {content_type} collaboration where you'd create authentic content that resonates with your audience. Let me send over the full brief.",
+    "Love the enthusiasm, {first_name}! Here's the overview: we'd want one main {content_type} deliverable plus some supporting story/reel content. We'll handle the creative brief and you'd put your unique spin on it.",
+    "That's great to hear! For {campaign_name}, we're envisioning a {content_type} partnership — one hero piece of content plus amplification across your stories. I'll send the full scope and we can discuss compensation.",
+    "Thrilled you're on board, {first_name}! Let me outline the partnership: we're looking for a {content_type} collaboration — one main post with your honest take, plus story coverage during the campaign window. Here are the details.",
+    "Wonderful, {first_name}! Here's what the {campaign_name} partnership looks like: a sponsored {content_type} post, 2-3 stories, and usage rights for our channels. Let me know your thoughts on the scope and we'll talk numbers.",
+    "So glad you're interested! For this collab, we're thinking a {content_type} package — one dedicated post, story support, and a 60-day usage window. I'll put together a formal proposal with compensation details.",
+    "Fantastic, {first_name}! Let me lay out the partnership details for {campaign_name}. We'd love a {content_type} piece that fits naturally into your feed, plus some story amplification. Here's what we're proposing.",
+    "Really excited about this, {first_name}! The {campaign_name} brief calls for a {content_type} collaboration — authentic content that speaks to your audience. Let me share the scope and we can discuss the deal.",
+]
+
+NICHE_CONTENT_TYPES = {
+    "Fitness": ["workout video", "training post", "fitness content"],
+    "Beauty": ["tutorial", "review post", "beauty content"],
+    "Tech": ["review video", "unboxing post", "tech content"],
+    "Food": ["recipe video", "food content", "cooking post"],
+    "Lifestyle": ["lifestyle post", "vlog", "content"],
+    "Fashion": ["styling post", "lookbook", "fashion content"],
+    "Gaming": ["gameplay video", "review post", "gaming content"],
+    "Travel": ["travel vlog", "destination post", "travel content"],
+}
+
 NEGOTIATION_MESSAGES_INFLUENCER = [
     "I appreciate the offer! My rate for this type of content is usually ${rate}. Is there flexibility on the budget?",
     "Thanks for the details! I'd be happy to do this for ${rate}. That includes one main post and story coverage.",
@@ -201,28 +225,46 @@ def generate_reply(influencer: dict, outcome: str, day: int,
 
 
 def generate_negotiation_exchange(influencer: dict, deal_value: float, day: int,
-                                  start_date: str, rng: _random.Random) -> list[dict]:
-    """Generate a negotiation exchange (influencer rate + agent offer)."""
-    # Influencer asks for a rate (slightly above the deal value)
+                                  start_date: str, campaign_name: str,
+                                  rng: _random.Random) -> list[dict]:
+    """Generate a full negotiation exchange: agent proposal → influencer rate → agent counter."""
+    first_name = influencer.get("name", "there").split()[0]
+    niche = influencer.get("niche", "Lifestyle")
+    content_type = rng.choice(NICHE_CONTENT_TYPES.get(niche, ["content"]))
+
+    # 1. Agent proposal (acknowledges interest, outlines partnership)
+    proposal_template = rng.choice(AGENT_PROPOSAL_TEMPLATES)
+    proposal_msg = {
+        "sender": "agent",
+        "content": proposal_template.format(
+            first_name=first_name,
+            campaign_name=campaign_name,
+            content_type=content_type,
+        ),
+        "timestamp": _format_date(start_date, day),
+        "message_type": "negotiation",
+    }
+
+    # 2. Influencer asks for a rate (slightly above the deal value)
     influencer_rate = int(deal_value * rng.uniform(1.0, 1.4))
     inf_template = rng.choice(NEGOTIATION_MESSAGES_INFLUENCER)
     inf_msg = {
         "sender": "influencer",
         "content": inf_template.replace("${rate}", f"${influencer_rate:,}"),
-        "timestamp": _format_date(start_date, day),
-        "message_type": "negotiation",
-    }
-
-    # Agent responds with the deal value
-    agent_template = rng.choice(NEGOTIATION_MESSAGES_AGENT)
-    agent_msg = {
-        "sender": "agent",
-        "content": agent_template.replace("${deal}", f"${int(deal_value):,}"),
         "timestamp": _format_date(start_date, day + 1),
         "message_type": "negotiation",
     }
 
-    return [inf_msg, agent_msg]
+    # 3. Agent responds with the deal value
+    agent_template = rng.choice(NEGOTIATION_MESSAGES_AGENT)
+    agent_msg = {
+        "sender": "agent",
+        "content": agent_template.replace("${deal}", f"${int(deal_value):,}"),
+        "timestamp": _format_date(start_date, day + 2),
+        "message_type": "negotiation",
+    }
+
+    return [proposal_msg, inf_msg, agent_msg]
 
 
 def generate_signed_message(day: int, start_date: str, rng: _random.Random) -> dict:

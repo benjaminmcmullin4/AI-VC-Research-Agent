@@ -88,11 +88,14 @@ def advance_day(state: dict) -> dict:
     target = state["target_count"]
     total_pipeline = len(state["pipeline"])
 
+    active_pipeline = sum(
+        1 for info in state["pipeline"].values()
+        if info["stage"] in ("Discovered", "Qualified", "Contacted", "Replied", "Negotiating")
+    )
     should_discover = (
         signed_count < target
-        and total_pipeline < target * 6
+        and (active_pipeline < target * 3 or signed_count < target - 2)
         and budget_info["remaining"] > 0
-        and day <= 60
     )
 
     if should_discover:
@@ -270,7 +273,7 @@ def advance_day(state: dict) -> dict:
                     conv = state["conversations"].get(handle)
                     if conv:
                         msgs = generate_negotiation_exchange(
-                            inf or {}, deal, day, start_date, rng
+                            inf or {}, deal, day, start_date, campaign, rng
                         )
                         conv["messages"].extend(msgs)
                         conv["status"] = "Negotiating"
