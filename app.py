@@ -71,22 +71,27 @@ with st.sidebar:
         default_index=0,
         key="nav_menu",
         styles={
-            "container": {"padding": "8px 0", "background": "transparent"},
+            "container": {
+                "padding": "8px 0",
+                "background-color": "transparent",
+            },
+            "menu-title": {"display": "none"},
             "nav-link": {
                 "font-size": "14px",
                 "font-weight": "500",
                 "color": "#94A3B8",
+                "background-color": "transparent",
                 "padding": "12px 16px",
                 "border-radius": "8px",
                 "margin": "2px 8px",
                 "--hover-color": "rgba(255,255,255,0.06)",
             },
             "nav-link-selected": {
-                "background": "rgba(79,70,229,0.15)",
+                "background-color": "rgba(79,70,229,0.15)",
                 "color": "#FFFFFF",
                 "font-weight": "600",
             },
-            "icon": {"font-size": "16px"},
+            "icon": {"font-size": "16px", "color": "inherit"},
         },
     )
     selected_page = page_keys[page_labels.index(selected_label)]
