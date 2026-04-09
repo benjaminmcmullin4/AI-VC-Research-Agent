@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import streamlit as st
-from streamlit_option_menu import option_menu
 
 from ai_engine import get_api_key
 from config import APP_NAME, APP_SUBTITLE, COLORS, SIDEBAR_PAGES
@@ -61,40 +60,18 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
     # Navigation
+    _NAV_ICONS = {"Campaign": "\u00a0\u00a0\U0001F680", "Influencers": "\u00a0\u00a0\U0001F465", "Conversations": "\u00a0\u00a0\U0001F4AC", "Analytics": "\u00a0\u00a0\U0001F4C8"}
     page_labels = [label for label, _ in SIDEBAR_PAGES]
     page_keys = [key for _, key in SIDEBAR_PAGES]
+    display_labels = [f"{icon}{label}" for label, icon in [(l, _NAV_ICONS.get(l, "")) for l in page_labels]]
 
-    selected_label = option_menu(
-        menu_title=None,
-        options=page_labels,
-        icons=["rocket-takeoff", "people", "chat-dots", "graph-up"],
-        default_index=0,
-        key="nav_menu",
-        styles={
-            "container": {
-                "padding": "8px 0",
-                "background-color": "transparent",
-            },
-            "menu-title": {"display": "none"},
-            "nav-link": {
-                "font-size": "14px",
-                "font-weight": "500",
-                "color": "#94A3B8",
-                "background-color": "transparent",
-                "padding": "12px 16px",
-                "border-radius": "8px",
-                "margin": "2px 8px",
-                "--hover-color": "rgba(255,255,255,0.06)",
-            },
-            "nav-link-selected": {
-                "background-color": "rgba(79,70,229,0.15)",
-                "color": "#FFFFFF",
-                "font-weight": "600",
-            },
-            "icon": {"font-size": "16px", "color": "inherit"},
-        },
+    selected_display = st.radio(
+        "Navigation",
+        display_labels,
+        key="nav",
+        label_visibility="collapsed",
     )
-    selected_page = page_keys[page_labels.index(selected_label)]
+    selected_page = page_keys[display_labels.index(selected_display)]
 
     st.markdown("<hr style='border-color:rgba(255,255,255,0.06);margin:16px 0 12px'>", unsafe_allow_html=True)
 
