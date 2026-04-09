@@ -72,15 +72,47 @@ DISCOVERY_RATE = (5, 15)  # influencers discovered per day (min, max)
 
 # ── Design tokens ────────────────────────────────────────────────────────
 COLORS = {
-    "bg":         "#FFFFFF",
-    "surface":    "#F8FAFC",
-    "border":     "#E2E8F0",
-    "text":       "#0F172A",
-    "text_sec":   "#475569",
-    "text_muted": "#94A3B8",
-    "accent":     "#4F46E5",
-    "success":    "#10B981",
-    "warning":    "#F59E0B",
-    "error":      "#EF4444",
-    "sidebar_bg": "#0F172A",
+    # Backgrounds
+    "bg":           "#FFFFFF",
+    "surface":      "#F8FAFC",
+    "surface_alt":  "#F1F5F9",
+    "overlay":      "#FFFFFF",
+    # Borders
+    "border":       "#E2E8F0",
+    "border_light": "#F1F5F9",
+    # Text
+    "text":         "#0F172A",
+    "text_sec":     "#475569",
+    "text_muted":   "#94A3B8",
+    "text_inverse": "#FFFFFF",
+    # Brand
+    "accent":       "#4F46E5",
+    "accent_hover": "#4338CA",
+    "accent_light": "#EEF2FF",
+    "accent_muted": "rgba(79,70,229,0.08)",
+    # Semantic
+    "success":      "#10B981",
+    "success_light":"#ECFDF5",
+    "warning":      "#F59E0B",
+    "warning_light":"#FFFBEB",
+    "error":        "#EF4444",
+    "error_light":  "#FEF2F2",
+    # Sidebar
+    "sidebar_bg":   "#0F172A",
+    "sidebar_hover":"rgba(255,255,255,0.06)",
+    "sidebar_active":"rgba(79,70,229,0.15)",
+}
+
+# ── Elevation (box-shadow scale) ─────────────────────────────────────────
+SHADOWS = {
+    "xs":  "0 1px 2px rgba(0,0,0,0.04)",
+    "sm":  "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
+    "md":  "0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05)",
+    "lg":  "0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04)",
+    "xl":  "0 20px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.04)",
+}
+
+# ── Radius scale ─────────────────────────────────────────────────────────
+RADIUS = {
+    "sm": "6px", "md": "10px", "lg": "14px", "xl": "20px", "full": "9999px",
 }

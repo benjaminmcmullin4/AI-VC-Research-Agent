@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import streamlit as st
+from streamlit_option_menu import option_menu
 
 from ai_engine import get_api_key
 from config import APP_NAME, APP_SUBTITLE, COLORS, SIDEBAR_PAGES
@@ -15,9 +16,13 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ── Load CSS ─────────────────────────────────────────────────────────────
+# ── Load CSS + Icons ─────────────────────────────────────────────────────
 with open("styles/custom.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+st.markdown(
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">',
+    unsafe_allow_html=True,
+)
 
 # ── Session state defaults ───────────────────────────────────────────────
 if "campaign_configured" not in st.session_state:
@@ -40,25 +45,53 @@ api_key = get_api_key()
 
 # ── Sidebar ──────────────────────────────────────────────────────────────
 with st.sidebar:
+    # Brand header
     st.markdown(f"""
-    <div style="padding:8px 0 20px">
-        <div style="font-size:22px;font-weight:800;color:#F1F5F9;letter-spacing:-0.02em">{APP_NAME}</div>
-        <div style="font-size:11px;color:{COLORS["text_muted"]};margin-top:2px;letter-spacing:0.06em;text-transform:uppercase">{APP_SUBTITLE}</div>
+    <div style="padding:20px 16px 24px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#6366F1,#4F46E5);
+                display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:white;
+                box-shadow:0 2px 8px rgba(79,70,229,0.3)">I</div>
+            <div>
+                <div style="font-size:18px;font-weight:700;color:#F1F5F9;letter-spacing:-0.02em">{APP_NAME}</div>
+                <div style="font-size:10px;color:#64748B;letter-spacing:0.08em;text-transform:uppercase;margin-top:1px">{APP_SUBTITLE}</div>
+            </div>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
+    # Navigation
     page_labels = [label for label, _ in SIDEBAR_PAGES]
     page_keys = [key for _, key in SIDEBAR_PAGES]
 
-    selected_label = st.radio(
-        "Navigation",
-        page_labels,
-        key="nav",
-        label_visibility="collapsed",
+    selected_label = option_menu(
+        menu_title=None,
+        options=page_labels,
+        icons=["rocket-takeoff", "people", "chat-dots", "graph-up"],
+        default_index=0,
+        key="nav_menu",
+        styles={
+            "container": {"padding": "8px 0", "background": "transparent"},
+            "nav-link": {
+                "font-size": "14px",
+                "font-weight": "500",
+                "color": "#94A3B8",
+                "padding": "12px 16px",
+                "border-radius": "8px",
+                "margin": "2px 8px",
+                "--hover-color": "rgba(255,255,255,0.06)",
+            },
+            "nav-link-selected": {
+                "background": "rgba(79,70,229,0.15)",
+                "color": "#FFFFFF",
+                "font-weight": "600",
+            },
+            "icon": {"font-size": "16px"},
+        },
     )
     selected_page = page_keys[page_labels.index(selected_label)]
 
-    st.markdown(f"<hr style='border-color:rgba(255,255,255,0.08);margin:24px 0 12px'>", unsafe_allow_html=True)
+    st.markdown("<hr style='border-color:rgba(255,255,255,0.06);margin:16px 0 12px'>", unsafe_allow_html=True)
 
     # ── Simulation controls in sidebar ───────────────────────────────
     if sim and sim.get("active"):
@@ -67,15 +100,28 @@ with st.sidebar:
 
         day = sim["day"]
         budget_info = budget_summary(sim)
+        day_pct = min(100, day / 180 * 100)
 
         st.markdown(f"""
-        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;
-            color:{COLORS["text_muted"]};margin-bottom:8px">Simulation</div>
-        <div style="font-size:24px;font-weight:800;color:#F1F5F9;margin-bottom:4px">Day {day}</div>
-        <div style="font-size:12px;color:{COLORS["text_muted"]};margin-bottom:16px">
-            Budget: ${budget_info['remaining']:,.0f} remaining
+        <div style="padding:16px;margin:0 8px;background:rgba(255,255,255,0.03);border-radius:10px;
+            border:1px solid rgba(255,255,255,0.06)">
+            <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;
+                color:#64748B;margin-bottom:12px">Simulation</div>
+            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">
+                <div style="font-size:28px;font-weight:800;color:#F1F5F9;letter-spacing:-0.02em">Day {day}</div>
+                <div style="font-size:13px;color:#64748B">of 180</div>
+            </div>
+            <div style="font-size:12px;color:#64748B;margin-bottom:4px">
+                ${budget_info['remaining']:,.0f} remaining
+            </div>
+            <div style="height:3px;background:rgba(255,255,255,0.06);border-radius:2px;margin-top:8px;overflow:hidden">
+                <div style="height:100%;width:{day_pct:.0f}%;background:linear-gradient(90deg,#6366F1,#4F46E5);
+                    border-radius:2px"></div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
+
+        st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
         col_a, col_b = st.columns(2)
         with col_a:
@@ -90,21 +136,24 @@ with st.sidebar:
             advance_days(sim, 30)
             st.rerun()
 
-        st.markdown(f"<hr style='border-color:rgba(255,255,255,0.08);margin:16px 0 12px'>", unsafe_allow_html=True)
+        st.markdown("<hr style='border-color:rgba(255,255,255,0.06);margin:16px 0 12px'>", unsafe_allow_html=True)
 
     # ── API status ───────────────────────────────────────────────────
     if api_key:
-        st.markdown(f"""
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:{COLORS["success"]};padding:8px 0">
-            <div style="width:6px;height:6px;border-radius:50%;background:{COLORS["success"]}"></div>
-            AI enabled
+        st.markdown("""
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;
+            padding:12px 16px;margin:0 8px">
+            <div style="width:7px;height:7px;border-radius:50%;background:#10B981;
+                box-shadow:0 0 6px rgba(16,185,129,0.4)"></div>
+            <span style="color:#CBD5E1">AI engine connected</span>
         </div>
         """, unsafe_allow_html=True)
     else:
-        st.markdown(f"""
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:{COLORS["text_muted"]};padding:8px 0">
-            <div style="width:6px;height:6px;border-radius:50%;background:{COLORS["text_muted"]}"></div>
-            Demo mode
+        st.markdown("""
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#64748B;
+            padding:12px 16px;margin:0 8px">
+            <div style="width:7px;height:7px;border-radius:50%;background:#475569"></div>
+            <span>Demo mode</span>
         </div>
         """, unsafe_allow_html=True)
 

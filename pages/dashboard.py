@@ -9,11 +9,12 @@ from components import (
     budget_bar,
     day_counter_html,
     metric_card,
+    page_header,
     pipeline_bar,
     progress_bar_html,
     section_label,
 )
-from config import COLORS, DEFAULT_BUDGET, NICHES, PLATFORMS
+from config import COLORS, DEFAULT_BUDGET, NICHES, PLATFORMS, SHADOWS, RADIUS
 from data.mock_data import compute_cycle_metrics
 
 
@@ -22,9 +23,15 @@ def _render_setup():
     st.markdown("<div style='height:48px'></div>", unsafe_allow_html=True)
 
     st.markdown(f"""
-    <div style="text-align:center;max-width:520px;margin:0 auto 40px">
-        <div style="font-size:28px;font-weight:800;color:{COLORS["text"]};margin-bottom:8px">Launch a Campaign</div>
-        <div style="font-size:15px;color:{COLORS["text_sec"]};line-height:1.6">
+    <div style="text-align:center;max-width:520px;margin:0 auto 48px">
+        <div style="width:56px;height:56px;border-radius:16px;margin:0 auto 20px;
+            background:linear-gradient(135deg,#6366F1,#4F46E5);display:flex;align-items:center;
+            justify-content:center;box-shadow:0 4px 14px rgba(79,70,229,0.25)">
+            <i class="bi bi-rocket-takeoff" style="font-size:24px;color:white"></i>
+        </div>
+        <div style="font-size:28px;font-weight:800;color:{COLORS["text"]};letter-spacing:-0.02em;
+            margin-bottom:8px">Launch a Campaign</div>
+        <div style="font-size:15px;color:{COLORS["text_sec"]};line-height:1.65;max-width:400px;margin:0 auto">
             Tell the AI what you need. It will find the best creators,
             reach out automatically, and fill your roster.
         </div>
@@ -86,14 +93,13 @@ def _render_cycle(data: dict, metrics: dict, api_key: str | None):
     # Header row
     col_title, col_edit = st.columns([4, 1])
     with col_title:
-        st.markdown(f'<h1 style="font-size:28px;font-weight:700;margin-bottom:0">{name}</h1>', unsafe_allow_html=True)
         filters_desc = []
         if niches:
             filters_desc.append(", ".join(niches))
         if platforms:
             filters_desc.append(", ".join(platforms))
         sub = " · ".join(filters_desc) if filters_desc else "All niches and platforms"
-        st.markdown(f'<div style="font-size:14px;color:{COLORS["text_sec"]};margin-bottom:16px">{sub}</div>', unsafe_allow_html=True)
+        st.markdown(page_header(name, sub), unsafe_allow_html=True)
     with col_edit:
         st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
         if st.button("Edit Campaign", key="edit_campaign"):
@@ -117,7 +123,7 @@ def _render_cycle(data: dict, metrics: dict, api_key: str | None):
     c1, c2, c3, c4 = st.columns(4)
     c1.markdown(metric_card("AI Discovered", str(cycle["pool_size"])), unsafe_allow_html=True)
     c2.markdown(metric_card("Reached Out", str(cycle["reached_out"])), unsafe_allow_html=True)
-    c3.markdown(metric_card("Onboarded", str(cycle["onboarded"])), unsafe_allow_html=True)
+    c3.markdown(metric_card("Onboarded", str(cycle["onboarded"]), accent=True), unsafe_allow_html=True)
     c4.markdown(metric_card("Slots Remaining", str(cycle["slots_remaining"])), unsafe_allow_html=True)
 
     # Metric cards row 2: Budget & Revenue
@@ -127,7 +133,7 @@ def _render_cycle(data: dict, metrics: dict, api_key: str | None):
         b1, b2, b3, b4 = st.columns(4)
         b1.markdown(metric_card("Budget", f"${budget_total:,.0f}"), unsafe_allow_html=True)
         b2.markdown(metric_card("Spent", f"${budget_spent:,.0f}"), unsafe_allow_html=True)
-        b3.markdown(metric_card("Revenue", f"${total_revenue:,.0f}"), unsafe_allow_html=True)
+        b3.markdown(metric_card("Revenue", f"${total_revenue:,.0f}", accent=True), unsafe_allow_html=True)
         b4.markdown(metric_card("ROI", f"{roi:.1f}x" if budget_spent > 0 else "—"), unsafe_allow_html=True)
 
         # Budget bar
@@ -158,8 +164,9 @@ def _render_cycle(data: dict, metrics: dict, api_key: str | None):
         narrative += "All slots have been filled."
 
     st.markdown(f"""
-    <div style="background:{COLORS["surface"]};border:1px solid {COLORS["border"]};
-        border-radius:10px;padding:20px;font-size:14px;color:{COLORS["text_sec"]};line-height:1.65">
+    <div class="influx-card" style="background:{COLORS["bg"]};
+        border-radius:{RADIUS["lg"]};padding:24px;
+        box-shadow:{SHADOWS["sm"]};font-size:14px;color:{COLORS["text_sec"]};line-height:1.7">
         {narrative}
     </div>
     """, unsafe_allow_html=True)

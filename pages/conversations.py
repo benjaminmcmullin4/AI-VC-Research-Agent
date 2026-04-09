@@ -4,28 +4,35 @@ from __future__ import annotations
 
 import streamlit as st
 
-from components import chat_bubble, section_label
-from config import COLORS, STAGE_COLORS
+from components import chat_bubble, page_header, section_label
+from config import COLORS, SHADOWS, RADIUS, STAGE_COLORS
 from schema import OutreachThread
 
 
-def _status_dot(status: str) -> str:
+def _status_badge(status: str) -> str:
     color_map = {
-        "Awaiting Reply": "#94A3B8", "Follow-up Sent": "#8B5CF6",
-        "Interested": "#10B981", "Questions": "#F59E0B",
-        "Negotiating": "#F97316", "Signed": "#4F46E5", "Declined": "#EF4444",
+        "Awaiting Reply": ("#94A3B8", "#F1F5F9"),
+        "Follow-up Sent": ("#8B5CF6", "#F5F3FF"),
+        "Interested":     ("#10B981", "#ECFDF5"),
+        "Questions":      ("#F59E0B", "#FFFBEB"),
+        "Negotiating":    ("#F97316", "#FFF7ED"),
+        "Signed":         ("#4F46E5", "#EEF2FF"),
+        "Declined":       ("#EF4444", "#FEF2F2"),
     }
-    c = color_map.get(status, "#94A3B8")
-    return f'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:{c};margin-right:6px"></span>'
+    fg, bg = color_map.get(status, ("#94A3B8", "#F1F5F9"))
+    return (
+        f'<span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;'
+        f'color:{fg};background:{bg};padding:3px 10px;border-radius:20px">'
+        f'<span style="width:6px;height:6px;border-radius:50%;background:{fg}"></span>{status}</span>'
+    )
 
 
 def render_conversations(data: dict, api_key: str | None):
-    st.markdown(f'<h1 style="font-size:28px;font-weight:700;margin-bottom:4px">Conversations</h1>', unsafe_allow_html=True)
+    st.markdown(page_header("Conversations"), unsafe_allow_html=True)
 
     all_threads: list[OutreachThread] = list(data["conversations"])
 
     if not all_threads:
-        st.markdown(f'<div style="font-size:14px;color:{COLORS["text_sec"]};margin-bottom:24px">No conversations yet</div>', unsafe_allow_html=True)
         st.info("No conversations yet. Advance the simulation from the sidebar to generate outreach.")
         return
 
@@ -52,12 +59,13 @@ def render_conversations(data: dict, api_key: str | None):
 
         # Header
         st.markdown(f"""
-        <div style="margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid {COLORS["border"]}">
-            <div style="font-size:18px;font-weight:700;color:{COLORS["text"]}">{thread.influencer_name}
+        <div style="margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid {COLORS["border_light"]}">
+            <div style="font-size:20px;font-weight:700;color:{COLORS["text"]};letter-spacing:-0.015em">{thread.influencer_name}
                 <span style="font-weight:400;color:{COLORS["text_muted"]};font-size:14px;margin-left:8px">{thread.influencer_handle}</span>
             </div>
-            <div style="font-size:13px;color:{COLORS["text_sec"]};margin-top:4px">
-                {thread.platform} · {_status_dot(thread.status)}{thread.status}
+            <div style="font-size:13px;color:{COLORS["text_sec"]};margin-top:8px;display:flex;align-items:center;gap:8px">
+                <span>{thread.platform}</span>
+                {_status_badge(thread.status)}
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -71,12 +79,22 @@ def render_conversations(data: dict, api_key: str | None):
         deal_str = f"${thread.deal_value:,.0f}" if thread.deal_value else "TBD"
         next_action = thread.next_action or _infer_next_action(thread.status)
         st.markdown(f"""
-        <div style="background:{COLORS["surface"]};border:1px solid {COLORS["border"]};
-            border-radius:8px;padding:16px;margin-top:20px;font-size:13px;color:{COLORS["text_sec"]}">
-            <div style="display:flex;gap:24px;flex-wrap:wrap">
-                <span>Stage: <strong style="color:{COLORS["text"]}">{thread.current_stage}</strong></span>
-                <span>Deal: <strong style="color:{COLORS["text"]}">{deal_str}</strong></span>
-                <span>Next: <strong style="color:{COLORS["text"]}">{next_action}</strong></span>
+        <div class="influx-card" style="background:{COLORS["surface"]};
+            border-radius:{RADIUS["md"]};padding:18px 20px;margin-top:20px;
+            font-size:13px;color:{COLORS["text_sec"]};box-shadow:{SHADOWS["xs"]}">
+            <div style="display:flex;gap:28px;flex-wrap:wrap">
+                <span style="display:flex;align-items:center;gap:6px">
+                    <i class="bi bi-diagram-3" style="color:{COLORS["text_muted"]}"></i>
+                    Stage: <strong style="color:{COLORS["text"]}">{thread.current_stage}</strong>
+                </span>
+                <span style="display:flex;align-items:center;gap:6px">
+                    <i class="bi bi-currency-dollar" style="color:{COLORS["text_muted"]}"></i>
+                    Deal: <strong style="color:{COLORS["text"]}">{deal_str}</strong>
+                </span>
+                <span style="display:flex;align-items:center;gap:6px">
+                    <i class="bi bi-arrow-right-circle" style="color:{COLORS["text_muted"]}"></i>
+                    Next: <strong style="color:{COLORS["text"]}">{next_action}</strong>
+                </span>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -93,10 +111,12 @@ def render_conversations(data: dict, api_key: str | None):
         if "conv_draft" in st.session_state:
             d = st.session_state["conv_draft"]
             st.markdown(f"""
-            <div style="background:{COLORS["surface"]};border:1px solid {COLORS["accent"]}30;
-                border-left:3px solid {COLORS["accent"]};border-radius:8px;padding:14px;margin-top:12px">
-                <div style="font-size:12px;font-weight:600;color:{COLORS["accent"]};text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px">AI Draft</div>
-                <div style="font-size:14px;color:{COLORS["text"]};line-height:1.55">{d.body}</div>
+            <div class="influx-card" style="background:{COLORS["accent_light"]};
+                border-left:3px solid {COLORS["accent"]};border-radius:{RADIUS["md"]};
+                padding:16px 20px;margin-top:12px;box-shadow:{SHADOWS["xs"]}">
+                <div style="font-size:12px;font-weight:600;color:{COLORS["accent"]};text-transform:uppercase;
+                    letter-spacing:0.04em;margin-bottom:8px">AI Draft</div>
+                <div style="font-size:14px;color:{COLORS["text"]};line-height:1.6">{d.body}</div>
             </div>
             """, unsafe_allow_html=True)
 

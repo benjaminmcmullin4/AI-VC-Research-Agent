@@ -6,18 +6,31 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
-from components import budget_bar, metric_card, section_label
-from config import COLORS
+from components import budget_bar, metric_card, page_header, section_label
+from config import COLORS, SHADOWS, RADIUS
 from data.mock_data import compute_revenue_by_influencer, compute_revenue_by_platform, get_active_roster
 
 
-def _light_layout(fig, height=320):
+def _premium_layout(fig, height=320):
     fig.update_layout(
-        margin=dict(l=0, r=0, t=0, b=0), height=height,
-        font=dict(family="Inter", color=COLORS["text_sec"]),
-        plot_bgcolor="white", paper_bgcolor="white",
-        xaxis=dict(showgrid=True, gridcolor="#F1F5F9"),
-        yaxis=dict(showgrid=True, gridcolor="#F1F5F9"),
+        margin=dict(l=8, r=8, t=8, b=8),
+        height=height,
+        font=dict(family="Inter", color="#475569", size=12),
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
+        xaxis=dict(
+            showgrid=True, gridcolor="#F1F5F9", gridwidth=1, zeroline=False,
+            tickfont=dict(size=11, color="#94A3B8"),
+        ),
+        yaxis=dict(
+            showgrid=True, gridcolor="#F1F5F9", gridwidth=1, zeroline=False,
+            tickfont=dict(size=11, color="#94A3B8"),
+        ),
+        hoverlabel=dict(
+            bgcolor="#0F172A", font_size=13, font_family="Inter",
+            font_color="#F1F5F9", bordercolor="rgba(0,0,0,0)",
+        ),
+        legend=dict(font=dict(size=12, color="#475569"), bgcolor="rgba(0,0,0,0)"),
     )
     return fig
 
@@ -26,8 +39,7 @@ def render_analytics(data: dict, metrics: dict):
     sim = st.session_state.get("sim")
     is_sim = sim and sim.get("active")
 
-    st.markdown(f'<h1 style="font-size:28px;font-weight:700;margin-bottom:4px">Analytics</h1>', unsafe_allow_html=True)
-    st.markdown(f'<div style="font-size:14px;color:{COLORS["text_sec"]};margin-bottom:32px">Revenue, conversions, and influencer performance</div>', unsafe_allow_html=True)
+    st.markdown(page_header("Analytics", "Revenue, conversions, and influencer performance"), unsafe_allow_html=True)
 
     # ── Hero metrics ─────────────────────────────────────────────────────
     onboarded_count = sum(1 for i in data["influencers"] if i.status in ("Signed", "Content Posted", "Converted"))
@@ -39,8 +51,8 @@ def render_analytics(data: dict, metrics: dict):
     roi = total_revenue / budget_spent if budget_spent > 0 else 0
 
     c1, c2, c3, c4 = st.columns(4)
-    c1.markdown(metric_card("Total Revenue", f"${total_revenue:,.0f}"), unsafe_allow_html=True)
-    c2.markdown(metric_card("ROI", f"{roi:.1f}x" if budget_spent > 0 else "—"), unsafe_allow_html=True)
+    c1.markdown(metric_card("Total Revenue", f"${total_revenue:,.0f}", accent=True), unsafe_allow_html=True)
+    c2.markdown(metric_card("ROI", f"{roi:.1f}x" if budget_spent > 0 else "—", accent=True), unsafe_allow_html=True)
     c3.markdown(metric_card("Avg Cost / Onboard", f"${cost_per_onboard:,.0f}"), unsafe_allow_html=True)
     c4.markdown(metric_card("Active Influencers", str(onboarded_count)), unsafe_allow_html=True)
 
@@ -72,7 +84,6 @@ def render_analytics(data: dict, metrics: dict):
         pipeline = sim.get("pipeline", {})
         for handle, info in pipeline.items():
             if info["stage"] in ("Content Posted", "Converted"):
-                # Find content_posted_day from pool
                 posted_day = None
                 for inf in sim.get("pool", []):
                     if inf["handle"] == handle:
@@ -87,7 +98,7 @@ def render_analytics(data: dict, metrics: dict):
 
         proj_days = []
         proj_cumulative = []
-        proj_running = running  # start from last actual value
+        proj_running = running
         for future_day in range(current_day + 1, 181):
             day_rev = 0.0
             for pi in posted_influencers:
@@ -101,14 +112,13 @@ def render_analytics(data: dict, metrics: dict):
 
         fig_rev = go.Figure()
         fig_rev.add_trace(go.Scatter(
-            x=days, y=cumulative, mode="lines+markers",
+            x=days, y=cumulative, mode="lines",
             fill="tozeroy",
-            line=dict(color=COLORS["accent"], width=2),
-            marker=dict(size=4),
+            fillcolor="rgba(79,70,229,0.06)",
+            line=dict(color=COLORS["accent"], width=2.5),
             name="Actual Revenue",
         ))
         if proj_days:
-            # Connect projection to actual data
             bridge_days = [days[-1]] + proj_days
             bridge_cumulative = [cumulative[-1]] + proj_cumulative
             fig_rev.add_trace(go.Scatter(
@@ -120,7 +130,7 @@ def render_analytics(data: dict, metrics: dict):
             xaxis_title="Day", yaxis_title="Revenue ($)",
             yaxis=dict(tickprefix="$", tickformat=","),
         )
-        st.plotly_chart(_light_layout(fig_rev, 280), use_container_width=True)
+        st.plotly_chart(_premium_layout(fig_rev, 280), use_container_width=True)
 
     # ── Active Roster ────────────────────────────────────────────────────
     st.markdown(section_label("Active Influencer Roster"), unsafe_allow_html=True)
@@ -160,14 +170,7 @@ def render_analytics(data: dict, metrics: dict):
         (c3, "Deal → Content", deal_to_post),
         (c4, "Content → Convert", post_to_convert),
     ]:
-        col.markdown(f"""
-        <div style="background:{COLORS["surface"]};border:1px solid {COLORS["border"]};
-            border-radius:10px;padding:24px;text-align:center">
-            <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;
-                color:{COLORS["text_muted"]};margin-bottom:8px">{label}</div>
-            <div style="font-size:32px;font-weight:800;color:{COLORS["text"]}">{val:.0f}%</div>
-        </div>
-        """, unsafe_allow_html=True)
+        col.markdown(metric_card(label, f"{val:.0f}%"), unsafe_allow_html=True)
 
     # ── Revenue charts ───────────────────────────────────────────────────
     col_l, col_r = st.columns(2)
@@ -176,9 +179,12 @@ def render_analytics(data: dict, metrics: dict):
         st.markdown(section_label("Revenue by Influencer"), unsafe_allow_html=True)
         df_rev = compute_revenue_by_influencer(data)
         if len(df_rev):
-            fig = px.bar(df_rev.head(10), x="Revenue", y="Name", orientation="h", color_discrete_sequence=[COLORS["accent"]])
-            fig.update_layout(showlegend=False, yaxis=dict(autorange="reversed", showgrid=False), xaxis=dict(tickprefix="$", tickformat=","))
-            st.plotly_chart(_light_layout(fig, 280), use_container_width=True)
+            fig = px.bar(df_rev.head(10), x="Revenue", y="Name", orientation="h",
+                         color_discrete_sequence=["#6366F1"])
+            fig.update_layout(showlegend=False,
+                              yaxis=dict(autorange="reversed", showgrid=False),
+                              xaxis=dict(tickprefix="$", tickformat=","))
+            st.plotly_chart(_premium_layout(fig, 280), use_container_width=True)
         else:
             st.info("No revenue data yet.")
 
@@ -187,9 +193,9 @@ def render_analytics(data: dict, metrics: dict):
         df_plat = compute_revenue_by_platform(data)
         if len(df_plat):
             fig2 = px.pie(df_plat, values="Revenue", names="Platform", hole=0.5,
-                          color_discrete_sequence=[COLORS["accent"], "#10B981", "#EF4444", "#F59E0B"])
+                          color_discrete_sequence=["#4F46E5", "#10B981", "#F59E0B", "#EC4899"])
             fig2.update_traces(textinfo="label+percent", textfont_size=12)
             fig2.update_layout(showlegend=False)
-            st.plotly_chart(_light_layout(fig2, 280), use_container_width=True)
+            st.plotly_chart(_premium_layout(fig2, 280), use_container_width=True)
         else:
             st.info("No revenue data yet.")
